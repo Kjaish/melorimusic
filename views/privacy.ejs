@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - MELORI MUSIC</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .legal-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    .legal-header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid #333;
+    }
+    .legal-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .legal-header .date {
+      color: #999;
+      font-size: 0.9rem;
+    }
+    .legal-content h2 {
+      color: var(--primary-color);
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+    }
+    .legal-content p, .legal-content li {
+      color: #ccc;
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+    .legal-content ul {
+      padding-left: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .legal-content li {
+      margin-bottom: 0.5rem;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--primary-color);
+      text-decoration: none;
+      margin-bottom: 2rem;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/header', { user: typeof user !== 'undefined' ? user : null }) %>
+  
+  <main class="legal-container">
+    <a href="/" class="back-link" data-testid="link-back"><i class="fas fa-arrow-left"></i> Back to Home</a>
+    
+    <div class="legal-header">
+      <h1><i class="fas fa-shield-alt"></i> Privacy Policy</h1>
+      <p class="date">Last Updated: January 1, 2026</p>
+    </div>
+    
+    <div class="legal-content">
+      <h2>1. Introduction</h2>
+      <p>MELORI MUSIC ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform.</p>
+      
+      <h2>2. Information We Collect</h2>
+      <p><strong>Personal Information:</strong></p>
+      <ul>
+        <li>Email address (for account creation and communication)</li>
+        <li>Username (for account identification)</li>
+        <li>Password (stored securely using bcrypt hashing)</li>
+        <li>Payment information (processed securely by Stripe)</li>
+      </ul>
+      
+      <p><strong>Usage Information:</strong></p>
+      <ul>
+        <li>Pages visited and features used</li>
+        <li>Music listened to and purchased</li>
+        <li>Search queries</li>
+        <li>Device and browser information</li>
+        <li>IP address and location data</li>
+      </ul>
+      
+      <h2>3. How We Use Your Information</h2>
+      <p>We use collected information to:</p>
+      <ul>
+        <li>Provide and maintain our services</li>
+        <li>Process transactions and send purchase confirmations</li>
+        <li>Send important updates about your account</li>
+        <li>Improve our platform and user experience</li>
+        <li>Provide customer support</li>
+        <li>Detect and prevent fraud or abuse</li>
+        <li>Comply with legal obligations</li>
+      </ul>
+      
+      <h2>4. Information Sharing</h2>
+      <p>We do not sell your personal information. We may share information with:</p>
+      <ul>
+        <li><strong>Service Providers:</strong> Third parties that help us operate our platform (e.g., Stripe for payments)</li>
+        <li><strong>Legal Requirements:</strong> When required by law or to protect our rights</li>
+        <li><strong>Business Transfers:</strong> In connection with a merger, acquisition, or sale of assets</li>
+      </ul>
+      
+      <h2>5. Data Security</h2>
+      <p>We implement industry-standard security measures including:</p>
+      <ul>
+        <li>Password hashing using bcrypt</li>
+        <li>Secure HTTPS connections</li>
+        <li>Session management with secure cookies</li>
+        <li>Regular security audits and updates</li>
+        <li>Limited access to personal data</li>
+      </ul>
+      
+      <h2>6. Cookies and Tracking</h2>
+      <p>We use cookies and similar technologies to:</p>
+      <ul>
+        <li>Maintain your session and authentication</li>
+        <li>Remember your preferences</li>
+        <li>Analyze platform usage and performance</li>
+        <li>Provide personalized recommendations</li>
+      </ul>
+      <p>You can manage cookie preferences through your browser settings.</p>
+      
+      <h2>7. Your Rights</h2>
+      <p>You have the right to:</p>
+      <ul>
+        <li>Access your personal information</li>
+        <li>Correct inaccurate data</li>
+        <li>Request deletion of your account</li>
+        <li>Opt out of marketing communications</li>
+        <li>Export your data in a portable format</li>
+      </ul>
+      
+      <h2>8. Data Retention</h2>
+      <p>We retain your information for as long as your account is active or as needed to provide services. We may retain certain information as required by law or for legitimate business purposes.</p>
+      
+      <h2>9. Children's Privacy</h2>
+      <p>Our platform is not intended for children under 13. We do not knowingly collect information from children under 13. If we become aware of such collection, we will delete the information.</p>
+      
+      <h2>10. International Transfers</h2>
+      <p>Your information may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place for such transfers.</p>
+      
+      <h2>11. Changes to This Policy</h2>
+      <p>We may update this Privacy Policy from time to time. We will notify you of significant changes by posting the new policy on this page and updating the "Last Updated" date.</p>
+      
+      <h2>12. Contact Us</h2>
+      <p>If you have questions about this Privacy Policy or your data, contact us at:</p>
+      <p><a href="mailto:privacy@melorimusic.com" style="color: var(--primary-color);">privacy@melorimusic.com</a></p>
+    </div>
+  </main>
+  
+  <%- include('partials/footer-simple') %>
+  <script src="/js/main.js"></script>
+</body>
+</html>

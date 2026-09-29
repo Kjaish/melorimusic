@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= album.title %> - MELORI MUSIC</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('partials/header', { user: null, searchQuery: '' }) %>
+  
+  <main class="container">
+    <div class="album-detail">
+      <div class="album-cover">
+        <img src="/uploads/album_art/<%= album.album_art %>" alt="<%= album.title %>" onerror="this.src='/uploads/album_art/default.jpg'">
+        <% if (typeof isAdmin !== 'undefined' && isAdmin) { %>
+          <a href="/admin/albums/edit/<%= album.id %>" class="admin-edit-btn" data-testid="button-edit-album-<%= album.id %>">
+            <i class="fas fa-edit"></i> Edit Album
+          </a>
+        <% } %>
+      </div>
+      
+      <div class="album-content">
+        <div class="album-header">
+          <h1><%= album.title %></h1>
+          <p class="album-meta-info">
+            <% if (album.release_date) { %>
+              Released: <%= new Date(album.release_date).toLocaleDateString() %>
+            <% } %>
+          </p>
+          <p><%= album.description || '' %></p>
+        </div>
+        
+        <div class="price-section">
+          <h3>Buy Full Album</h3>
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <span class="album-price" style="font-size: 2rem;">$<%= parseFloat(album.price).toFixed(2) %></span>
+            <button class="btn btn-primary purchase-btn" data-type="album" data-id="<%= album.id %>" data-title="<%= album.title %>" data-price="<%= album.price %>" data-testid="button-buy-album-<%= album.id %>">
+              Purchase Album
+            </button>
+          </div>
+        </div>
+        
+        <% if (songs && songs.length > 0) { %>
+          <div class="song-list">
+            <div class="song-header">
+              <span></span>
+              <span>#</span>
+              <span>Title</span>
+              <span>BPM</span>
+              <span>Duration</span>
+              <span>Price</span>
+              <span>Action</span>
+            </div>
+            <% songs.forEach((song, index) => { 
+              const formatDuration = (seconds) => {
+                if (!seconds) return '--:--';
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return mins + ':' + (secs < 10 ? '0' : '') + secs;
+              };
+            %>
+              <div class="song-item" data-song-id="<%= song.id %>" data-file-path="<%= song.file_path %>">
+                <button class="play-song-btn" data-file-path="<%= song.file_path %>" data-title="<%= song.title %>" data-song-id="<%= song.id %>" data-testid="button-play-song-<%= song.id %>">
+                  <i class="fas fa-play"></i>
+                </button>
+                <span class="song-number"><%= song.track_number || index + 1 %></span>
+                <div class="song-info">
+                  <h4><%= song.title %></h4>
+                </div>
+                <span class="song-bpm" data-testid="text-bpm-<%= song.id %>"><%= (song.bpm || song.tempo) ? Math.round(song.bpm || song.tempo) : '--' %></span>
+                <span class="song-duration" data-testid="text-duration-<%= song.id %>"><%= formatDuration(song.duration) %></span>
+                <span class="song-price">$<%= parseFloat(song.price).toFixed(2) %></span>
+                <button class="btn btn-small btn-secondary purchase-btn" data-type="song" data-id="<%= song.id %>" data-title="<%= song.title %>" data-price="<%= song.price %>" data-testid="button-buy-song-<%= song.id %>">
+                  Buy
+                </button>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <p class="empty-state">No songs available for this album yet.</p>
+        <% } %>
+      </div>
+    </div>
+  </main>
+  
+  <%- include('partials/player') %>
+  <%- include('partials/footer-simple') %>
+  
+  <script src="/js/main.js"></script>
+</body>
+</html>

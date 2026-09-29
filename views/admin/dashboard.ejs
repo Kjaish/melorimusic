@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - MELORI MUSIC</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <%- include('../partials/header', { user: user }) %>
+  
+  <main class="container" style="padding: 1.5rem 1rem; padding-bottom: 100px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap;">
+        <h1 style="margin: 0;">Dashboard</h1>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <a href="/admin/analytics" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; background: #333; color: white; text-decoration: none; border-radius: 8px; font-weight: 500; border: 1px solid #444;" data-testid="link-analytics">
+            <i class="fas fa-chart-bar"></i> Analytics
+          </a>
+          <a href="/admin/promo" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; background: #333; color: white; text-decoration: none; border-radius: 8px; font-weight: 500; border: 1px solid #444;" data-testid="link-promo">
+            <i class="fas fa-ticket-alt"></i> Promo Codes
+          </a>
+          <button type="button" onclick="openCodeGenerator()" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: 500; cursor: pointer;" data-testid="button-generate-codes">
+            <i class="fas fa-magic"></i> Generate Codes
+          </button>
+          <a href="/admin/settings" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; background: #ff5500; color: white; text-decoration: none; border-radius: 8px; font-weight: 500;" data-testid="link-settings">
+            <i class="fas fa-cog"></i> Account Settings
+          </a>
+        </div>
+      </div>
+      
+      <% if (typeof subscriptionSuccess !== 'undefined' && subscriptionSuccess) { %>
+        <div class="alert alert-success" style="background: #10b981; color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+          <i class="fas fa-check-circle"></i> Your subscription has been upgraded successfully!
+        </div>
+      <% } %>
+      
+      <% if (typeof user !== 'undefined' && user && !user.onboarding_complete) { %>
+        <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 1.25rem 1.5rem; border-radius: 10px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem;"></i>
+            <div>
+              <strong>Bank Account Setup Required</strong>
+              <p style="margin: 0.25rem 0 0 0; opacity: 0.9; font-size: 0.875rem;">Complete your bank account setup to receive payouts from your music sales.</p>
+            </div>
+          </div>
+          <a href="/artist/connect/onboard" style="background: white; color: #d97706; padding: 0.625rem 1.25rem; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; white-space: nowrap;" data-testid="link-complete-setup">
+            <i class="fas fa-arrow-right"></i> Complete Setup
+          </a>
+        </div>
+      <% } else if (typeof user !== 'undefined' && user && user.onboarding_complete) { %>
+        <div style="background: #059669; color: white; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+          <i class="fas fa-check-circle"></i>
+          <span>Bank account connected</span>
+          <a href="/admin/bank" style="color: white; margin-left: 0.5rem; opacity: 0.9; text-decoration: underline;" data-testid="link-view-bank">View details</a>
+        </div>
+      <% } %>
+      
+      <% if (!canUploadMore) { %>
+        <div class="alert alert-warning">
+          <i class="fas fa-exclamation-triangle"></i>
+          <strong>Album limit reached!</strong> You have reached the maximum of <%= maxAlbums %> albums. 
+          Delete some albums to add new ones.
+        </div>
+      <% } %>
+      
+      <div class="stats-grid">
+        <div class="stat-card" data-testid="stat-albums">
+          <span class="stat-value"><%= stats.total_albums || 0 %></span>
+          <span class="stat-label">Albums</span>
+          <small><%= albumCount %> / <%= maxAlbums %> slots used</small>
+        </div>
+        
+        <div class="stat-card" data-testid="stat-songs">
+          <span class="stat-value"><%= stats.total_songs || 0 %></span>
+          <span class="stat-label">Songs</span>
+        </div>
+        
+        <div class="stat-card" data-testid="stat-revenue">
+          <span class="stat-value">$<%= parseFloat(stats.total_revenue || 0).toFixed(2) %></span>
+          <span class="stat-label">Total Revenue</span>
+          <% if (stats.total_discounts > 0) { %>
+            <small>Discounts: $<%= parseFloat(stats.total_discounts).toFixed(2) %></small>
+          <% } %>
+        </div>
+        
+        <div class="stat-card" data-testid="stat-sales">
+          <span class="stat-value"><%= stats.total_sales || 0 %></span>
+          <span class="stat-label">Total Sales</span>
+        </div>
+        
+        <div class="stat-card" data-testid="stat-customers">
+          <span class="stat-value"><%= stats.total_customers || 0 %></span>
+          <span class="stat-label">Customers</span>
+        </div>
+      </div>
+      
+      <% if (typeof earnings !== 'undefined') { %>
+      <div style="margin-top: 2rem;">
+        <h3 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+          <i class="fas fa-chart-pie"></i> Earnings Summary
+        </h3>
+        <div class="stats-grid">
+          <div class="stat-card" data-testid="stat-gross-earnings">
+            <span class="stat-value">$<%= earnings.total_gross.toFixed(2) %></span>
+            <span class="stat-label">Gross Sales</span>
+            <small><%= earnings.total_transactions %> transactions</small>
+          </div>
+          
+          <div class="stat-card" data-testid="stat-commission">
+            <span class="stat-value" style="color: #ef4444;">-$<%= earnings.total_commission.toFixed(2) %></span>
+            <span class="stat-label">Platform Fee (<%= commissionRate %>%)</span>
+            <small>Commission paid</small>
+          </div>
+          
+          <div class="stat-card" data-testid="stat-net-earnings">
+            <span class="stat-value" style="color: #10b981;">$<%= earnings.total_net.toFixed(2) %></span>
+            <span class="stat-label">Net Earnings</span>
+            <small>Your earnings after fees</small>
+          </div>
+          
+          <div class="stat-card" data-testid="stat-pending-payout">
+            <span class="stat-value" style="color: #f59e0b;">$<%= earnings.pending_payout.toFixed(2) %></span>
+            <span class="stat-label">Pending Payout</span>
+            <small><%= payoutFrequency === 'weekly' ? 'Weekly' : 'Monthly' %> payouts</small>
+          </div>
+          
+          <div class="stat-card" data-testid="stat-paid-out">
+            <span class="stat-value">$<%= earnings.paid_out.toFixed(2) %></span>
+            <span class="stat-label">Total Paid Out</span>
+            <small>Transferred to bank</small>
+          </div>
+        </div>
+      </div>
+      <% } %>
+      
+      <% if (typeof recentTransactions !== 'undefined' && recentTransactions.length > 0) { %>
+      <div style="margin-top: 2rem;">
+        <h3 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+          <i class="fas fa-exchange-alt"></i> Recent Transactions
+        </h3>
+        <div style="background: var(--card-background); border-radius: 10px; padding: 1rem; overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="border-bottom: 1px solid #333; text-align: left;">
+                <th style="padding: 0.75rem; color: #999;">Item</th>
+                <th style="padding: 0.75rem; color: #999;">Gross</th>
+                <th style="padding: 0.75rem; color: #999;">Commission</th>
+                <th style="padding: 0.75rem; color: #999;">Net</th>
+                <th style="padding: 0.75rem; color: #999;">Status</th>
+                <th style="padding: 0.75rem; color: #999;">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% recentTransactions.forEach(tx => { %>
+                <tr style="border-bottom: 1px solid #333;" data-testid="row-transaction-<%= tx.id %>">
+                  <td style="padding: 0.75rem;">
+                    <%= tx.album_title || tx.song_title || 'N/A' %>
+                    <div style="font-size: 0.8rem; color: #666;"><%= tx.sale_type === 'album' ? 'Album' : 'Song' %></div>
+                  </td>
+                  <td style="padding: 0.75rem;">$<%= parseFloat(tx.gross_amount).toFixed(2) %></td>
+                  <td style="padding: 0.75rem; color: #ef4444;">-$<%= parseFloat(tx.commission_amount).toFixed(2) %></td>
+                  <td style="padding: 0.75rem; color: #10b981;">$<%= parseFloat(tx.net_amount).toFixed(2) %></td>
+                  <td style="padding: 0.75rem;">
+                    <% if (tx.payout_status === 'pending') { %>
+                      <span style="background: #f59e0b; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">Pending</span>
+                    <% } else if (tx.payout_status === 'paid') { %>
+                      <span style="background: #10b981; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">Paid</span>
+                    <% } else { %>
+                      <span style="background: #666; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;"><%= tx.payout_status %></span>
+                    <% } %>
+                  </td>
+                  <td style="padding: 0.75rem; color: #999; font-size: 0.875rem;"><%= new Date(tx.created_at).toLocaleDateString() %></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <% } %>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+        <div>
+          <h3>Recent Sales</h3>
+          <div style="background: var(--card-background); border-radius: 10px; padding: 1rem; margin-top: 1rem;">
+            <% if (!sales || sales.length === 0) { %>
+              <p style="text-align: center; color: #999; padding: 2rem;">No sales yet</p>
+            <% } else { %>
+              <% sales.forEach(sale => { %>
+                <div style="padding: 0.75rem; border-bottom: 1px solid #333;">
+                  <div style="display: flex; justify-content: space-between; gap: 1rem;">
+                    <span><%= sale.album_title || sale.song_title %></span>
+                    <span style="color: #ff5500; font-weight: bold;">$<%= parseFloat(sale.amount).toFixed(2) %></span>
+                  </div>
+                  <div style="font-size: 0.9rem; color: #999;">
+                    <%= sale.customer_email %> &bull; <%= new Date(sale.created_at).toLocaleDateString() %>
+                  </div>
+                </div>
+              <% }); %>
+            <% } %>
+          </div>
+        </div>
+        
+        <div>
+          <h3>Recent Searches</h3>
+          <div style="background: var(--card-background); border-radius: 10px; padding: 1rem; margin-top: 1rem;">
+            <% if (!searches || searches.length === 0) { %>
+              <p style="text-align: center; color: #999; padding: 2rem;">No searches yet</p>
+            <% } else { %>
+              <% searches.forEach(search => { %>
+                <div style="padding: 0.75rem; border-bottom: 1px solid #333;">
+                  <div style="display: flex; justify-content: space-between; gap: 1rem;">
+                    <span>"<%= search.query %>"</span>
+                    <span style="color: #999; font-size: 0.9rem;">
+                      <%= search.result_count || 0 %> results
+                    </span>
+                  </div>
+                  <div style="font-size: 0.8rem; color: #666;">
+                    <%= new Date(search.created_at).toLocaleString() %>
+                  </div>
+                </div>
+              <% }); %>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      
+      <div style="margin-top: 2rem;">
+        <h3>Analytics Charts</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1rem;">
+          <div style="background: var(--card-background); border-radius: 10px; padding: 1rem;">
+            <canvas id="salesChart" height="200"></canvas>
+          </div>
+          <div style="background: var(--card-background); border-radius: 10px; padding: 1rem;">
+            <canvas id="trafficChart" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+  </main>
+  
+  <%- include('../partials/footer-simple') %>
+  
+  <script src="/js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const salesCtx = document.getElementById('salesChart');
+      const trafficCtx = document.getElementById('trafficChart');
+      
+      if (salesCtx) {
+        new Chart(salesCtx, {
+          type: 'line',
+          data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+              label: 'Sales ($)',
+              data: [0, 0, 0, 0, 0, 0, 0],
+              borderColor: '#ff5500',
+              backgroundColor: 'rgba(255, 85, 0, 0.1)',
+              tension: 0.4,
+              fill: true
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                labels: { color: '#fff' }
+              }
+            },
+            scales: {
+              x: { ticks: { color: '#999' }, grid: { color: '#333' } },
+              y: { ticks: { color: '#999' }, grid: { color: '#333' } }
+            }
+          }
+        });
+      }
+      
+      if (trafficCtx) {
+        new Chart(trafficCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Albums', 'Songs'],
+            datasets: [{
+              data: [<%= stats.total_albums || 0 %>, <%= stats.total_songs || 0 %>],
+              backgroundColor: ['#ff5500', '#ff8c00'],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                labels: { color: '#fff' }
+              }
+            }
+          }
+        });
+      }
+    });
+  </script>
+
+  <!-- Code Generator Modal -->
+  <div id="codeGenModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem;">
+    <div style="background: var(--card-background, #1a1a1a); border-radius: 12px; padding: 2rem; max-width: 600px; width: 100%; border: 1px solid #333;">
+      <h3 style="margin: 0 0 1.5rem 0; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-magic" style="color: #ff5500;"></i> Quick Code Generator
+      </h3>
+      
+      <div id="genFormSection">
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #999; text-transform: uppercase; font-size: 0.85rem;">Select Campaign</label>
+          <select id="genCampaignSelect" style="width: 100%; padding: 0.75rem; background: #222; border: 1px solid #444; border-radius: 8px; color: white;" data-testid="select-campaign">
+            <option value="">-- Select a campaign --</option>
+          </select>
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #999; text-transform: uppercase; font-size: 0.85rem;">Number of Codes</label>
+          <input type="number" id="genCodeCount" value="100" min="1" max="1000" style="width: 100%; padding: 0.75rem; background: #222; border: 1px solid #444; border-radius: 8px; color: white;" data-testid="input-gen-count">
+        </div>
+        
+        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+          <button type="button" onclick="closeCodeGenerator()" style="padding: 0.75rem 1.25rem; background: #333; color: white; border: 1px solid #444; border-radius: 8px; cursor: pointer;">Cancel</button>
+          <button type="button" onclick="generateCodesNow()" id="genBtn" style="padding: 0.75rem 1.25rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;" data-testid="button-gen-now">
+            <i class="fas fa-magic"></i> Generate
+          </button>
+        </div>
+      </div>
+      
+      <div id="genLoadingSection" style="display: none; text-align: center; padding: 2rem;">
+        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #ff5500;"></i>
+        <p style="margin-top: 1rem; color: #999;">Generating codes...</p>
+      </div>
+      
+      <div id="genResultsSection" style="display: none;">
+        <div style="background: rgba(16, 185, 129, 0.15); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+          <i class="fas fa-check-circle" style="color: #10b981;"></i>
+          <span id="genSuccessMsg" style="color: #10b981; font-weight: 600;"></span>
+        </div>
+        
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #999;">Generated Codes (click to copy)</label>
+          <textarea id="genCodesOutput" readonly onclick="copyGenCodes()" style="width: 100%; height: 200px; font-family: monospace; font-size: 0.9rem; padding: 0.75rem; background: #222; border: 1px solid #444; border-radius: 8px; color: white; cursor: pointer; resize: none;" data-testid="textarea-gen-codes"></textarea>
+        </div>
+        
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: flex-end;">
+          <button type="button" onclick="copyGenCodes()" style="padding: 0.75rem 1.25rem; background: #333; color: white; border: 1px solid #444; border-radius: 8px; cursor: pointer;" data-testid="button-copy-gen">
+            <i class="fas fa-copy"></i> Copy All
+          </button>
+          <button type="button" onclick="downloadGenCodes()" style="padding: 0.75rem 1.25rem; background: #333; color: white; border: 1px solid #444; border-radius: 8px; cursor: pointer;" data-testid="button-download-gen">
+            <i class="fas fa-download"></i> Download
+          </button>
+          <button type="button" onclick="generateMore()" style="padding: 0.75rem 1.25rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;" data-testid="button-gen-more">
+            <i class="fas fa-plus"></i> More
+          </button>
+          <button type="button" onclick="closeCodeGenerator()" style="padding: 0.75rem 1.25rem; background: #ff5500; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function() {
+    let campaigns = [];
+    let generatedCodes = [];
+    let currentKeyword = '';
+    
+    window.openCodeGenerator = async function() {
+      document.getElementById('codeGenModal').style.display = 'flex';
+      document.getElementById('genFormSection').style.display = 'block';
+      document.getElementById('genLoadingSection').style.display = 'none';
+      document.getElementById('genResultsSection').style.display = 'none';
+      
+      // Fetch campaigns
+      try {
+        const res = await fetch('/api/admin/promo/campaigns');
+        campaigns = await res.json();
+        const select = document.getElementById('genCampaignSelect');
+        select.innerHTML = '<option value="">-- Select a campaign --</option>';
+        campaigns.forEach(c => {
+          select.innerHTML += `<option value="${c.id}">${c.keyword} - ${c.name}</option>`;
+        });
+      } catch (e) {
+        console.error('Failed to load campaigns:', e);
+      }
+    };
+    
+    window.closeCodeGenerator = function() {
+      document.getElementById('codeGenModal').style.display = 'none';
+    };
+    
+    window.generateCodesNow = async function() {
+      const campaignId = document.getElementById('genCampaignSelect').value;
+      const count = parseInt(document.getElementById('genCodeCount').value) || 100;
+      
+      if (!campaignId) {
+        alert('Please select a campaign first');
+        return;
+      }
+      
+      document.getElementById('genFormSection').style.display = 'none';
+      document.getElementById('genLoadingSection').style.display = 'block';
+      
+      try {
+        const res = await fetch('/api/admin/promo/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ campaign_id: campaignId, count })
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+          generatedCodes = data.codes;
+          currentKeyword = data.keyword;
+          document.getElementById('genSuccessMsg').textContent = `Generated ${data.count} codes for ${data.keyword}`;
+          document.getElementById('genCodesOutput').value = data.codes.join('\n');
+          document.getElementById('genLoadingSection').style.display = 'none';
+          document.getElementById('genResultsSection').style.display = 'block';
+        } else {
+          alert('Error: ' + (data.error || 'Failed to generate'));
+          document.getElementById('genLoadingSection').style.display = 'none';
+          document.getElementById('genFormSection').style.display = 'block';
+        }
+      } catch (e) {
+        alert('Failed to generate codes');
+        document.getElementById('genLoadingSection').style.display = 'none';
+        document.getElementById('genFormSection').style.display = 'block';
+      }
+    };
+    
+    window.copyGenCodes = function() {
+      const textarea = document.getElementById('genCodesOutput');
+      textarea.select();
+      document.execCommand('copy');
+      alert('Codes copied to clipboard!');
+    };
+    
+    window.downloadGenCodes = function() {
+      const csv = 'Code\n' + generatedCodes.join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `promo-codes-${currentKeyword}-${Date.now()}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+    
+    window.generateMore = function() {
+      document.getElementById('genFormSection').style.display = 'block';
+      document.getElementById('genResultsSection').style.display = 'none';
+    };
+    
+    document.getElementById('codeGenModal').addEventListener('click', function(e) {
+      if (e.target === this) closeCodeGenerator();
+    });
+  })();
+  </script>
+</body>
+</html>

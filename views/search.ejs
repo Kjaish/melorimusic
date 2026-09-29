@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Results - MELORI MUSIC</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <%- include('partials/header') %>
+  
+  <main class="container">
+    <div class="search-results">
+      <div class="results-header">
+        <h1>Search Results</h1>
+        <p class="results-count">
+          Found <%= results.length %> results for "<%= query %>"
+        </p>
+      </div>
+      
+      <% if (results.length === 0) { %>
+        <div style="text-align: center; padding: 4rem 0;">
+          <i class="fas fa-search" style="font-size: 4rem; color: #666; margin-bottom: 1rem; display: block;"></i>
+          <h2>No results found</h2>
+          <p>Try different keywords or browse all albums.</p>
+          <a href="/" class="btn btn-primary" style="margin-top: 1rem;" data-testid="link-browse-albums">
+            <i class="fas fa-compact-disc"></i> Browse All Albums
+          </a>
+        </div>
+      <% } else { %>
+        <div class="results-list">
+          <% results.forEach(result => { %>
+            <div class="result-card clickable-card" 
+                 data-href="<%= result.type === 'album' ? `/album/${result.id}` : (result.type === 'single' ? '/#singles' : `/album/${result.album_id}`) %>"
+                 data-testid="result-card-<%= result.type %>-<%= result.id %>">
+              <span class="result-type <%= result.type %>">
+                <%= result.type === 'single' ? 'Single' : (result.type.charAt(0).toUpperCase() + result.type.slice(1)) %>
+              </span>
+              <h3><%= result.title %></h3>
+              <% if (result.description) { %>
+                <p><%= result.description %></p>
+              <% } %>
+              <% if (result.album_title && result.type === 'song') { %>
+                <p>from <strong><%= result.album_title %></strong></p>
+              <% } %>
+              <% if (result.match_reason) { %>
+                <p class="match-reason">
+                  <i class="fas fa-info-circle"></i> <%= result.match_reason %>
+                </p>
+              <% } %>
+              <div style="margin-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                <span class="album-price">$<%= parseFloat(result.price).toFixed(2) %></span>
+                <button class="btn btn-primary btn-small purchase-btn" 
+                        data-type="<%= result.type === 'single' ? 'song' : result.type %>"
+                        data-id="<%= result.id %>"
+                        data-title="<%= result.title %>"
+                        data-price="<%= result.price %>"
+                        data-testid="button-buy-<%= result.type %>-<%= result.id %>">
+                  <i class="fas fa-shopping-cart"></i> Buy
+                </button>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } %>
+    </div>
+  </main>
+  
+  <%- include('partials/player') %>
+  <%- include('partials/footer-simple') %>
+  
+  <script src="/js/main.js"></script>
+</body>
+</html>

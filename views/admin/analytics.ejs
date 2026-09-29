@@ -1,0 +1,529 @@
+<%
+function formatTime(ms) {
+  const seconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  
+  if (hours > 0) {
+    return hours + 'h ' + (minutes % 60) + 'm';
+  } else if (minutes > 0) {
+    return minutes + 'm ' + (seconds % 60) + 's';
+  } else {
+    return seconds + 's';
+  }
+}
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics - MELORI MUSIC</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<%- include('../partials/header', { user: user }) %>
+
+<style>
+  .analytics-container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  
+  .filter-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .filter-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+  }
+  
+  .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  
+  .filter-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+  
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .stat-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+  }
+  
+  .stat-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .stat-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+  }
+  
+  .stat-card-icon.views { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+  .stat-card-icon.clicks { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+  .stat-card-icon.time { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+  .stat-card-icon.users { background: rgba(139, 92, 246, 0.2); color: #8b5cf6; }
+  
+  .stat-card-title {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .stat-card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-top: 0.5rem;
+    color: var(--text-color);
+  }
+  
+  .data-section {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+  }
+  
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .section-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .section-title i {
+    color: var(--accent);
+  }
+  
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .data-table th,
+  .data-table td {
+    padding: 0.875rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .data-table th {
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: rgba(0,0,0,0.2);
+  }
+  
+  .data-table tr:hover {
+    background: rgba(255,255,255,0.02);
+  }
+  
+  .data-table td {
+    font-size: 0.95rem;
+  }
+  
+  .page-path {
+    color: var(--accent);
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .user-email {
+    color: var(--text-color);
+    font-weight: 500;
+  }
+  
+  .time-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+  
+  .count-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-muted);
+  }
+  
+  .empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+  
+  .loading-spinner {
+    display: none;
+    text-align: center;
+    padding: 2rem;
+  }
+  
+  .loading-spinner.active {
+    display: block;
+  }
+  
+  .loading-spinner i {
+    font-size: 2rem;
+    color: var(--accent);
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  @media (max-width: 768px) {
+    .data-table {
+      display: block;
+      overflow-x: auto;
+    }
+    
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
+
+<main class="container analytics-container" style="padding: 1.5rem 1rem; padding-bottom: 100px;">
+  <div class="page-header">
+    <h1><i class="fas fa-chart-line" style="color: var(--accent);"></i> Analytics</h1>
+    <div class="filter-group">
+      <button type="button" class="filter-btn" data-days="7" data-testid="filter-7days">7 Days</button>
+      <button type="button" class="filter-btn" data-days="14" data-testid="filter-14days">14 Days</button>
+      <button type="button" class="filter-btn active" data-days="30" data-testid="filter-30days">30 Days</button>
+      <button type="button" class="filter-btn" data-days="90" data-testid="filter-90days">90 Days</button>
+    </div>
+  </div>
+  
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card" data-testid="stat-page-views">
+      <div class="stat-card-header">
+        <span class="stat-card-title">Total Page Views</span>
+        <div class="stat-card-icon views"><i class="fas fa-eye"></i></div>
+      </div>
+      <div class="stat-card-value" id="totalPageViews"><%= summary?.total_page_views || 0 %></div>
+    </div>
+    
+    <div class="stat-card" data-testid="stat-clicks">
+      <div class="stat-card-header">
+        <span class="stat-card-title">Total Clicks</span>
+        <div class="stat-card-icon clicks"><i class="fas fa-mouse-pointer"></i></div>
+      </div>
+      <div class="stat-card-value" id="totalClicks"><%= summary?.total_clicks || 0 %></div>
+    </div>
+    
+    <div class="stat-card" data-testid="stat-time-spent">
+      <div class="stat-card-header">
+        <span class="stat-card-title">Total Time Spent</span>
+        <div class="stat-card-icon time"><i class="fas fa-clock"></i></div>
+      </div>
+      <div class="stat-card-value" id="totalTimeSpent"><%= formatTime(summary?.total_time_ms || 0) %></div>
+    </div>
+    
+    <div class="stat-card" data-testid="stat-unique-users">
+      <div class="stat-card-header">
+        <span class="stat-card-title">Unique Users</span>
+        <div class="stat-card-icon users"><i class="fas fa-users"></i></div>
+      </div>
+      <div class="stat-card-value" id="uniqueUsers"><%= summary?.unique_users || 0 %></div>
+    </div>
+  </div>
+  
+  <div class="data-section">
+    <div class="section-header">
+      <h2 class="section-title"><i class="fas fa-file-alt"></i> Top Pages</h2>
+    </div>
+    <div class="loading-spinner" id="topPagesLoading">
+      <i class="fas fa-spinner"></i>
+    </div>
+    <% if (topPages && topPages.length > 0) { %>
+      <table class="data-table" id="topPagesTable" data-testid="table-top-pages">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Page Path</th>
+            <th>Views</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% topPages.forEach((page, index) => { %>
+            <tr data-testid="row-page-<%= index %>">
+              <td><%= index + 1 %></td>
+              <td class="page-path"><%= page.page_path || '/' %></td>
+              <td><span class="count-badge"><%= page.view_count %></span></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <div class="empty-state" id="topPagesEmpty">
+        <i class="fas fa-chart-bar"></i>
+        <p>No page view data available yet.</p>
+      </div>
+    <% } %>
+  </div>
+  
+  <div class="data-section">
+    <div class="section-header">
+      <h2 class="section-title"><i class="fas fa-user-clock"></i> User Engagement</h2>
+    </div>
+    <div class="loading-spinner" id="engagementLoading">
+      <i class="fas fa-spinner"></i>
+    </div>
+    <% if (userEngagement && userEngagement.length > 0) { %>
+      <table class="data-table" id="engagementTable" data-testid="table-user-engagement">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Page Views</th>
+            <th>Clicks</th>
+            <th>Time Spent</th>
+            <th>Last Activity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% userEngagement.forEach((user, index) => { %>
+            <tr data-testid="row-user-<%= index %>">
+              <td class="user-email"><%= user.email %></td>
+              <td><span class="count-badge"><%= user.page_views %></span></td>
+              <td><span class="count-badge"><%= user.clicks %></span></td>
+              <td><span class="time-badge"><%= formatTime(user.time_spent_ms || 0) %></span></td>
+              <td><%= user.last_activity ? new Date(user.last_activity).toLocaleString() : 'N/A' %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <div class="empty-state" id="engagementEmpty">
+        <i class="fas fa-users"></i>
+        <p>No user engagement data available yet.</p>
+      </div>
+    <% } %>
+  </div>
+</main>
+
+<%- include('../partials/footer-simple') %>
+
+<script src="/js/main.js"></script>
+<script>
+(function() {
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  let currentDays = 30;
+  
+  function formatTime(ms) {
+    const seconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    
+    if (hours > 0) {
+      return hours + 'h ' + (minutes % 60) + 'm';
+    } else if (minutes > 0) {
+      return minutes + 'm ' + (seconds % 60) + 's';
+    } else {
+      return seconds + 's';
+    }
+  }
+  
+  async function loadAnalytics(days) {
+    try {
+      document.getElementById('topPagesLoading').classList.add('active');
+      document.getElementById('engagementLoading').classList.add('active');
+      
+      const [summaryRes, topPagesRes, engagementRes] = await Promise.all([
+        fetch('/api/admin/analytics/summary?days=' + days),
+        fetch('/api/admin/analytics/top-pages?days=' + days),
+        fetch('/api/admin/analytics/engagement?days=' + days)
+      ]);
+      
+      const summary = await summaryRes.json();
+      const topPages = await topPagesRes.json();
+      const engagement = await engagementRes.json();
+      
+      document.getElementById('totalPageViews').textContent = summary.total_page_views || 0;
+      document.getElementById('totalClicks').textContent = summary.total_clicks || 0;
+      document.getElementById('totalTimeSpent').textContent = formatTime(summary.total_time_ms || 0);
+      document.getElementById('uniqueUsers').textContent = summary.unique_users || 0;
+      
+      updateTopPagesTable(topPages);
+      updateEngagementTable(engagement);
+      
+    } catch (error) {
+      console.error('Error loading analytics:', error);
+    } finally {
+      document.getElementById('topPagesLoading').classList.remove('active');
+      document.getElementById('engagementLoading').classList.remove('active');
+    }
+  }
+  
+  function updateTopPagesTable(pages) {
+    const container = document.querySelector('.data-section:first-of-type');
+    const existingTable = document.getElementById('topPagesTable');
+    const emptyState = document.getElementById('topPagesEmpty');
+    
+    if (pages && pages.length > 0) {
+      if (emptyState) emptyState.style.display = 'none';
+      
+      let tableHtml = `
+        <table class="data-table" id="topPagesTable" data-testid="table-top-pages">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Page Path</th>
+              <th>Views</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      
+      pages.forEach((page, index) => {
+        tableHtml += `
+          <tr data-testid="row-page-${index}">
+            <td>${index + 1}</td>
+            <td class="page-path">${page.page_path || '/'}</td>
+            <td><span class="count-badge">${page.view_count}</span></td>
+          </tr>
+        `;
+      });
+      
+      tableHtml += '</tbody></table>';
+      
+      if (existingTable) {
+        existingTable.outerHTML = tableHtml;
+      } else {
+        container.insertAdjacentHTML('beforeend', tableHtml);
+      }
+    } else {
+      if (existingTable) existingTable.remove();
+      if (emptyState) emptyState.style.display = 'block';
+    }
+  }
+  
+  function updateEngagementTable(users) {
+    const container = document.querySelectorAll('.data-section')[1];
+    const existingTable = document.getElementById('engagementTable');
+    const emptyState = document.getElementById('engagementEmpty');
+    
+    if (users && users.length > 0) {
+      if (emptyState) emptyState.style.display = 'none';
+      
+      let tableHtml = `
+        <table class="data-table" id="engagementTable" data-testid="table-user-engagement">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Page Views</th>
+              <th>Clicks</th>
+              <th>Time Spent</th>
+              <th>Last Activity</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      
+      users.forEach((user, index) => {
+        const lastActivity = user.last_activity ? new Date(user.last_activity).toLocaleString() : 'N/A';
+        tableHtml += `
+          <tr data-testid="row-user-${index}">
+            <td class="user-email">${user.email}</td>
+            <td><span class="count-badge">${user.page_views}</span></td>
+            <td><span class="count-badge">${user.clicks}</span></td>
+            <td><span class="time-badge">${formatTime(user.time_spent_ms || 0)}</span></td>
+            <td>${lastActivity}</td>
+          </tr>
+        `;
+      });
+      
+      tableHtml += '</tbody></table>';
+      
+      if (existingTable) {
+        existingTable.outerHTML = tableHtml;
+      } else {
+        container.insertAdjacentHTML('beforeend', tableHtml);
+      }
+    } else {
+      if (existingTable) existingTable.remove();
+      if (emptyState) emptyState.style.display = 'block';
+    }
+  }
+  
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      currentDays = parseInt(this.dataset.days);
+      loadAnalytics(currentDays);
+    });
+  });
+})();
+</script>
+</body>
+</html>

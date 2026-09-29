@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support the Music - MELORI MUSIC</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    .support-hero {
+      background: linear-gradient(135deg, #ff5500, #1a1a1a);
+      color: white;
+      padding: 20px 20px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .support-hero h1 {
+      font-size: 1.6rem;
+      margin-bottom: 8px;
+    }
+
+    .support-hero .tagline {
+      font-size: 1rem;
+      opacity: 0.9;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .goal-meter {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .goal-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      gap: 1rem;
+    }
+
+    .meter-bar {
+      height: 12px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .meter-progress {
+      height: 100%;
+      background: linear-gradient(to right, #ff5500, #ff8c00);
+      width: <%=Math.min((raised / goal) * 100, 100) %>%;
+      border-radius: 6px;
+      transition: width 1s ease;
+    }
+
+    .support-content {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      padding: 0 20px 60px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .story-section {
+      flex: 2;
+      min-width: 300px;
+    }
+
+    .funding-section {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .section-title {
+      color: var(--primary-color);
+      margin-bottom: 25px;
+      font-size: 1.5rem;
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 10px;
+    }
+
+    .story-content p {
+      margin-bottom: 20px;
+      font-size: 1.1rem;
+      color: var(--text-color);
+      line-height: 1.8;
+    }
+
+    .highlight {
+      background-color: rgba(255, 85, 0, 0.1);
+      border-left: 4px solid var(--primary-color);
+      padding: 20px;
+      margin: 25px 0;
+      font-style: italic;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .support-options {
+      background: var(--card-background);
+      border-radius: 12px;
+      padding: 25px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .support-type {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-left: 4px solid var(--primary-color);
+      transition: transform 0.3s ease;
+    }
+
+    .support-type:hover {
+      transform: translateX(5px);
+    }
+
+    .support-type h3 {
+      color: var(--text-color);
+      margin-bottom: 10px;
+    }
+
+    .support-type p {
+      color: var(--text-secondary);
+      margin-bottom: 15px;
+      font-size: 0.95rem;
+    }
+
+    .support-btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      min-height: 48px;
+    }
+
+    .support-btn:hover {
+      background-color: #cc4400;
+      transform: translateY(-2px);
+    }
+
+    .support-btn-secondary {
+      background-color: #ff8c00;
+    }
+
+    .support-btn-secondary:hover {
+      background-color: #cc7000;
+    }
+
+    /* Payment Modal */
+    .support-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .support-modal.active {
+      display: flex;
+    }
+
+    .support-modal-content {
+      background-color: var(--card-background);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 450px;
+      padding: 30px;
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .close-support-modal {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 28px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      background: none;
+      border: none;
+      min-height: 48px;
+      min-width: 48px;
+    }
+
+    .modal-title {
+      color: var(--primary-color);
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+    }
+
+    .amount-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .amount-option {
+      flex: 1;
+      min-width: 70px;
+      padding: 12px;
+      text-align: center;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: transparent;
+      color: var(--text-color);
+      min-height: 48px;
+    }
+
+    .amount-option:hover {
+      border-color: var(--primary-color);
+    }
+
+    .amount-option.selected {
+      border-color: var(--primary-color);
+      background-color: rgba(255, 85, 0, 0.2);
+      font-weight: 600;
+    }
+
+    .custom-amount-input {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      font-size: 1rem;
+      background: transparent;
+      color: var(--text-color);
+      margin-bottom: 20px;
+      min-height: 48px;
+    }
+
+    .custom-amount-input:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
+
+    .form-row {
+      margin-bottom: 20px;
+    }
+
+    .form-row label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--text-color);
+    }
+
+    .form-row input {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      font-size: 1rem;
+      background: transparent;
+      color: var(--text-color);
+      min-height: 48px;
+    }
+
+    .form-row input:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
+
+    #card-element {
+      padding: 15px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .card-input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .card-input-group .form-row {
+      flex: 1;
+      margin-bottom: 0;
+    }
+
+    .card-input-group .form-row:first-child {
+      flex: 2;
+    }
+
+    #card-errors {
+      color: #ef4444;
+      margin: 10px 0;
+      font-size: 0.9rem;
+    }
+
+    .secure-note {
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      margin-top: 15px;
+    }
+
+    .secure-note i {
+      margin-right: 5px;
+    }
+
+    @media (max-width: 768px) {
+      .support-hero h1 {
+        font-size: 1.8rem;
+      }
+
+      .support-content {
+        flex-direction: column;
+      }
+
+      .amount-option {
+        min-width: 60px;
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <%- include('partials/header') %>
+
+    <div class="support-hero">
+      <h1>Support the Music Movement</h1>
+      <p class="tagline">Help bring heartfelt music to the world and fuel Melori into the next chapter of creation.</p>
+    </div>
+
+    <div class="support-content">
+      <section class="funding-section" style="margin-bottom: 30px;">
+        <h2 class="section-title">Make a Donation</h2>
+        <div class="support-options">
+          <div class="support-type">
+            <p>Directly support the music creation process and movie evolution.<br>Every contribution fuels the next
+              steps.</p>
+            <button class="support-btn donation-btn" data-testid="button-donate">Make a Donation</button>
+          </div>
+
+          <p class="secure-note">
+            <i class="fas fa-lock"></i> Secure Donation processing by Stripe
+          </p>
+        </div>
+      </section>
+
+      <section class="story-section">
+        <h2 class="section-title">Become a Part of the Journey</h2>
+        <div class="story-content">
+          <p><strong>Choose your level of impact:</strong></p>
+
+          <h3 style="color: var(--primary-color); margin: 25px 0 15px;">The Audience Member: Support the core film.</h3>
+          <p>From a performance back in 1983 at the New Regal Theater in Chicago to a photography studio, I am sure I
+            pointed my camera at someone from your family or a person you know from Chicago and abroad.</p>
+          <p>To a heartfelt book that was written in light of a life you knew nothing about...</p>
+          <p>To make this dream a reality, we need your help. We have launched a fundraising campaign to produce the
+            Waves of Echoes "WOE" movie.</p>
+          <p>Every contribution brings us closer to my movie "WOE" on the screen.</p>
+
+          <h3 style="color: var(--primary-color); margin: 25px 0 15px;">The Storyteller's Circle:</h3>
+          <p>A community of dedicated backers receiving exclusive updates, behind the scenes content, and your name in
+            the film's credits.</p>
+
+          <h3 style="color: var(--primary-color); margin: 25px 0 15px;">The Legacy Builder (Founding Patron):</h3>
+          <p>This is for those who see the integrated vision. As a Founding Patron, your major investment is a strategic
+            seed that directly funds:</p>
+
+          <div class="highlight">
+            Now, that echo is growing louder, and it's ready for its most powerful expression yet.
+          </div>
+
+          <ul style="margin: 15px 0; padding-left: 20px;">
+            <li style="margin-bottom: 10px;">Critical pre-production and next-generation technology.</li>
+            <li style="margin-bottom: 10px;">The embedded S.T.I.L.L. Shoot to inspire liberal learning mentorship
+              program.</li>
+            <li style="margin-bottom: 10px;">A signal to the industry that art and education can drive each other.</li>
+          </ul>
+
+          <p>Founding Patrons are co-architects. We invite you to a personal conversation to explore how your
+            partnership can uniquely shape both the film and the program.</p>
+
+          <h3 style="color: var(--primary-color); margin: 25px 0 15px;">Ready to Build With Us?</h3>
+          <p>This is an invitation to become a foundational part of this creative leap—from the intimacy of a book and
+            album to the shared experience of a film.</p>
+          <p>The journey continues—from the intimate echo to the shared epic.</p>
+          <p>Join us in building something that lasts long after the final cut.</p>
+
+          <p style="font-size: 1.3rem; font-weight: bold; color: var(--primary-color); margin-top: 25px;">Let's create
+          </p>
+
+          <h3 style="color: var(--primary-color); margin: 30px 0 20px;">Here's how you can help create the wave:</h3>
+
+          <p><strong>Donate & Become a Patron:</strong> Contribute and secure exclusive rewards from the film's
+            production.</p>
+
+          <p><strong>Share the Vision:</strong> Tell your friends about this project! Share this App, the music, and the
+            campaign link. Awareness is everything.</p>
+
+          <p><strong>Stay Connected:</strong> Follow Karl Ray and or karlrayphotography for exclusive updates, behind
+            the scenes looks, and to watch this story unfold. Subscribe to my <a
+              href="https://www.youtube.com/@karlrayproduction" target="_blank" rel="noopener noreferrer"
+              style="color: var(--primary-color);">YouTube</a></p>
+
+          <div class="highlight">
+            Your support has always been the fuel for my art. Now, let's build this next chapter together. Let's turn
+            the echoes into a wave that everyone can see and hear.
+          </div>
+
+          <p style="font-style: italic; margin-top: 20px;">With immense gratitude,</p>
+          <p style="font-weight: bold; font-size: 1.2rem; margin-bottom: 0;">Karl Ray</p>
+
+          <div style="margin-top: 20px; padding: 15px; background: rgba(255, 85, 0, 0.1); border-radius: 8px;">
+            <p>If you'd be interested in playing a valuable role in the production, please leave a comment in the <a
+                href="/feedback" style="color: var(--primary-color);">feedback section</a> stating your interest.</p>
+            <p style="margin-top: 10px;">Or email <a href="mailto:melorimusicplatform@gmail.com?subject=WOE"
+                style="color: var(--primary-color);">melorimusicplatform@gmail.com</a> and add WOE to the subject line.
+            </p>
+          </div>
+
+          <div
+            style="margin-top: 40px; text-align: center; padding: 30px; border-top: 1px solid rgba(255, 85, 0, 0.3);">
+            <a href="http://karlrayphotography.net" target="_blank" rel="noopener noreferrer"
+              style="color: var(--primary-color); font-size: 1rem; text-decoration: underline;">Karl Ray Photography</a>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="support-modal" id="supportModal">
+      <div class="support-modal-content">
+        <button class="close-support-modal" data-testid="button-close-modal">&times;</button>
+        <h3 class="modal-title" id="supportModalTitle">Make a Donation</h3>
+
+        <div class="amount-selector" id="amountSelector">
+          <div class="amount-option" data-amount="10">$10</div>
+          <div class="amount-option" data-amount="25">$25</div>
+          <div class="amount-option selected" data-amount="50">$50</div>
+          <div class="amount-option" data-amount="100">$100</div>
+        </div>
+
+        <input type="number" class="custom-amount-input" id="customAmount" placeholder="Or enter custom amount" min="1"
+          data-testid="input-custom-amount">
+
+        <form id="support-form">
+          <div class="form-row">
+            <label for="supportEmail">Email Address</label>
+            <input type="email" id="supportEmail" placeholder="you@example.com" required
+              data-testid="input-support-email">
+          </div>
+
+          <div class="form-row">
+            <label for="supportName">Name</label>
+            <input type="text" id="supportName" placeholder="Your name" required data-testid="input-support-name">
+          </div>
+
+          <div class="form-row">
+            <label for="cardNumber">Card Number</label>
+            <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" required maxlength="19"
+              data-testid="input-card-number">
+          </div>
+
+          <div class="card-input-group">
+            <div class="form-row">
+              <label for="cardExpiry">Expiration Date</label>
+              <input type="text" id="cardExpiry" placeholder="MM / YY" required maxlength="7"
+                data-testid="input-card-expiry">
+            </div>
+
+            <div class="form-row">
+              <label for="cardCvc">CVV</label>
+              <input type="text" id="cardCvc" placeholder="123" required maxlength="4" data-testid="input-card-cvc">
+            </div>
+          </div>
+
+          <div id="card-errors" role="alert"></div>
+
+          <button type="submit" class="support-btn" style="width: 100%;" id="supportSubmitBtn"
+            data-testid="button-submit-support">
+            Donate $50
+          </button>
+        </form>
+
+        <p class="secure-note">
+          <i class="fas fa-lock"></i> Your payment is secure and encrypted
+        </p>
+      </div>
+    </div>
+
+    <%- include('partials/footer-simple') %>
+
+      <script>
+        // Initialize Stripe (only if key is available)
+        const stripePublicKey = '<%= stripePublicKey %>';
+        let stripe = null;
+        let stripeEnabled = false;
+
+        if (stripePublicKey && stripePublicKey.length > 0) {
+          try {
+            stripe = Stripe(stripePublicKey);
+            stripeEnabled = true;
+          } catch (e) {
+            console.error('Stripe initialization failed:', e);
+            document.getElementById('card-errors').textContent = 'Payment system unavailable. Please try again later.';
+          }
+        } else {
+          document.getElementById('card-errors').textContent = 'Payment system is not configured.';
+        }
+
+        // Card input formatting
+        const cardNumberInput = document.getElementById('cardNumber');
+        const cardExpiryInput = document.getElementById('cardExpiry');
+        const cardCvcInput = document.getElementById('cardCvc');
+
+        // Format card number with spaces
+        if (cardNumberInput) {
+          cardNumberInput.addEventListener('input', function (e) {
+            let value = e.target.value.replace(/\s/g, '').replace(/\D/g, '');
+            let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+            e.target.value = formattedValue;
+          });
+        }
+
+        // Format expiry date as MM / YY
+        if (cardExpiryInput) {
+          cardExpiryInput.addEventListener('input', function (e) {
+            let value = e.target.value.replace(/\s/g, '').replace(/\D/g, '');
+            if (value.length >= 2) {
+              value = value.substring(0, 2) + ' / ' + value.substring(2, 4);
+            }
+            e.target.value = value;
+          });
+        }
+
+        // Format CVC as numeric only
+        if (cardCvcInput) {
+          cardCvcInput.addEventListener('input', function (e) {
+            e.target.value = e.target.value.replace(/\D/g, '');
+          });
+        }
+
+        // Modal elements
+        const supportModal = document.getElementById('supportModal');
+        const closeModalBtn = document.querySelector('.close-support-modal');
+        const donationBtns = document.querySelectorAll('.donation-btn');
+        const amountOptions = document.querySelectorAll('.amount-option');
+        const customAmountInput = document.getElementById('customAmount');
+        const modalTitle = document.getElementById('supportModalTitle');
+        const supportForm = document.getElementById('support-form');
+        const submitBtn = document.getElementById('supportSubmitBtn');
+
+        let currentAmount = 50;
+
+        function updateSubmitButton() {
+          submitBtn.textContent = `Donate $${currentAmount}`;
+        }
+
+        // Open modal for donations
+        donationBtns.forEach(btn => {
+          btn.addEventListener('click', function () {
+            modalTitle.textContent = 'Make a Donation';
+            currentAmount = 50;
+            amountOptions.forEach(opt => {
+              opt.classList.remove('selected');
+              if (parseInt(opt.dataset.amount) === 50) {
+                opt.classList.add('selected');
+              }
+            });
+            customAmountInput.value = '';
+            updateSubmitButton();
+            supportModal.classList.add('active');
+          });
+        });
+
+        // Close modal
+        closeModalBtn.addEventListener('click', () => {
+          supportModal.classList.remove('active');
+        });
+
+        supportModal.addEventListener('click', (e) => {
+          if (e.target === supportModal) {
+            supportModal.classList.remove('active');
+          }
+        });
+
+        // Amount selection
+        amountOptions.forEach(option => {
+          option.addEventListener('click', function () {
+            amountOptions.forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+            currentAmount = parseInt(this.dataset.amount);
+            customAmountInput.value = '';
+            updateSubmitButton();
+          });
+        });
+
+        // Custom amount
+        customAmountInput.addEventListener('input', function () {
+          if (this.value) {
+            amountOptions.forEach(opt => opt.classList.remove('selected'));
+            currentAmount = parseInt(this.value) || 0;
+            updateSubmitButton();
+          }
+        });
+
+        // Form submission
+        supportForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          if (!stripeEnabled) {
+            document.getElementById('card-errors').textContent = 'Payment system is not available.';
+            return;
+          }
+
+          if (currentAmount < 1) {
+            document.getElementById('card-errors').textContent = 'Please enter a valid amount.';
+            return;
+          }
+
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Processing...';
+
+          try {
+            // Get card details from inputs
+            const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+            const cardExpiry = document.getElementById('cardExpiry').value.replace(/\s/g, '');
+            const cardCvc = document.getElementById('cardCvc').value;
+
+            // Parse expiry date
+            const expiryParts = cardExpiry.split('/');
+            const exp_month = parseInt(expiryParts[0]);
+            const exp_year = parseInt('20' + expiryParts[1]);
+
+            // Validate card details
+            if (!cardNumber || cardNumber.length < 13) {
+              throw new Error('Please enter a valid card number.');
+            }
+            if (!exp_month || !exp_year || exp_month < 1 || exp_month > 12) {
+              throw new Error('Please enter a valid expiration date.');
+            }
+            if (!cardCvc || cardCvc.length < 3) {
+              throw new Error('Please enter a valid CVV.');
+            }
+
+            // Create payment method
+            const { paymentMethod, error: pmError } = await stripe.createPaymentMethod({
+              type: 'card',
+              card: {
+                number: cardNumber,
+                exp_month: exp_month,
+                exp_year: exp_year,
+                cvc: cardCvc
+              },
+              billing_details: {
+                name: document.getElementById('supportName').value,
+                email: document.getElementById('supportEmail').value
+              }
+            });
+
+            if (pmError) {
+              throw new Error(pmError.message);
+            }
+
+            // Create payment intent
+            const response = await fetch('/api/create-donation-intent', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                amount: currentAmount * 100,
+                email: document.getElementById('supportEmail').value,
+                name: document.getElementById('supportName').value
+              })
+            });
+
+            const { clientSecret, error: serverError } = await response.json();
+
+            if (serverError) {
+              throw new Error(serverError);
+            }
+
+            // Confirm payment
+            const result = await stripe.confirmCardPayment(clientSecret, {
+              payment_method: paymentMethod.id
+            });
+
+            if (result.error) {
+              document.getElementById('card-errors').textContent = result.error.message;
+              submitBtn.disabled = false;
+              updateSubmitButton();
+            } else if (result.paymentIntent.status === 'succeeded') {
+              submitBtn.textContent = 'Thank You!';
+              submitBtn.style.backgroundColor = '#10b981';
+
+              setTimeout(() => {
+                supportModal.classList.remove('active');
+                window.location.href = '/support/success?amount=' + currentAmount;
+              }, 1500);
+            }
+          } catch (error) {
+            document.getElementById('card-errors').textContent = error.message || 'Payment failed. Please try again.';
+            submitBtn.disabled = false;
+            updateSubmitButton();
+          }
+        });
+      </script>
+</body>
+
+</html>

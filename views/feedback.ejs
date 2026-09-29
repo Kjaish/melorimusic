@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feedback - MELORI MUSIC</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .feedback-container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    .feedback-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .feedback-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+    .feedback-header p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    .feedback-form {
+      background: var(--card-background);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 2rem;
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--text-color);
+    }
+    .form-group label .required {
+      color: var(--primary-color);
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      background: var(--background-color);
+      color: var(--text-color);
+      font-size: 1rem;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(255, 85, 0, 0.1);
+    }
+    .form-group textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+    .rating-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-direction: row-reverse;
+      justify-content: flex-end;
+    }
+    .rating-group input {
+      display: none;
+    }
+    .rating-group label {
+      cursor: pointer;
+      font-size: 1.75rem;
+      color: rgba(255, 255, 255, 0.3);
+      transition: color 0.2s;
+    }
+    .rating-group label:hover,
+    .rating-group label:hover ~ label,
+    .rating-group input:checked ~ label {
+      color: var(--primary-color);
+    }
+    .submit-btn {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1.1rem;
+    }
+    .success-message {
+      background: rgba(46, 204, 113, 0.1);
+      border: 1px solid rgba(46, 204, 113, 0.3);
+      color: #2ecc71;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .error-message {
+      background: rgba(231, 76, 60, 0.1);
+      border: 1px solid rgba(231, 76, 60, 0.3);
+      color: #e74c3c;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .info-box {
+      background: rgba(255, 85, 0, 0.1);
+      border: 1px solid rgba(255, 85, 0, 0.2);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+    .info-box i {
+      color: var(--primary-color);
+      margin-top: 2px;
+    }
+    .info-box p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/header') %>
+  
+  <main class="container">
+    <div class="feedback-container">
+      <div class="feedback-header">
+        <h1 data-testid="text-feedback-title">
+          <i class="fas fa-comments" style="color: var(--primary);"></i>
+          Share Your Feedback
+        </h1>
+        <p>We value your input! Help us make Melori better for artists and fans alike.</p>
+      </div>
+      
+      <% if (typeof success !== 'undefined' && success) { %>
+        <div class="success-message" data-testid="text-success">
+          <i class="fas fa-check-circle"></i> Thank you for your feedback! We appreciate you taking the time to share your thoughts.
+        </div>
+      <% } %>
+      
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="error-message" data-testid="text-error">
+          <i class="fas fa-exclamation-circle"></i> <%= error %>
+        </div>
+      <% } %>
+      
+      <div class="info-box">
+        <i class="fas fa-info-circle"></i>
+        <p>Your email is required so we can follow up on your feedback if needed. We respect your privacy and will never share your information.</p>
+      </div>
+      
+      <form class="feedback-form" action="/feedback" method="POST" data-testid="form-feedback">
+        <div class="form-group">
+          <label for="email">Email Address <span class="required">*</span></label>
+          <input type="email" id="email" name="email" required placeholder="your@email.com" data-testid="input-email">
+        </div>
+        
+        <div class="form-group">
+          <label for="name">Your Name</label>
+          <input type="text" id="name" name="name" placeholder="Optional" data-testid="input-name">
+        </div>
+        
+        <div class="form-group">
+          <label for="subject">Subject</label>
+          <select id="subject" name="subject" data-testid="select-subject">
+            <option value="general">General Feedback</option>
+            <option value="feature">Feature Request</option>
+            <option value="bug">Bug Report</option>
+            <option value="praise">Compliment</option>
+            <option value="partnership">Partnership Inquiry</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="message">Your Message <span class="required">*</span></label>
+          <textarea id="message" name="message" required placeholder="Tell us what you think..." data-testid="input-message"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label>Rate Your Experience</label>
+          <div class="rating-group">
+            <input type="radio" id="star5" name="rating" value="5">
+            <label for="star5" title="Excellent"><i class="fas fa-star"></i></label>
+            <input type="radio" id="star4" name="rating" value="4">
+            <label for="star4" title="Good"><i class="fas fa-star"></i></label>
+            <input type="radio" id="star3" name="rating" value="3" checked>
+            <label for="star3" title="Average"><i class="fas fa-star"></i></label>
+            <input type="radio" id="star2" name="rating" value="2">
+            <label for="star2" title="Poor"><i class="fas fa-star"></i></label>
+            <input type="radio" id="star1" name="rating" value="1">
+            <label for="star1" title="Terrible"><i class="fas fa-star"></i></label>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary submit-btn" data-testid="button-submit">
+          <i class="fas fa-paper-plane"></i> Submit Feedback
+        </button>
+      </form>
+      
+      <!-- Public Comments Section -->
+      <div class="comments-section" style="margin-top: 3rem;">
+        <h2 style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+          <i class="fas fa-users" style="color: var(--primary-color);"></i>
+          What Visitors Are Saying
+        </h2>
+        
+        <!-- Add Comment Form -->
+        <div class="comment-form-box" style="background: var(--card-background); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+          <h4 style="margin-bottom: 1rem;">Leave a Public Comment</h4>
+          <form id="commentForm" data-testid="form-comment">
+            <div class="form-group" style="margin-bottom: 1rem;">
+              <input type="text" id="commentName" name="commentName" placeholder="Your name" required maxlength="100" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; background: var(--background-color); color: var(--text-color); font-size: 1rem; min-height: 48px;" data-testid="input-comment-name">
+            </div>
+            <div class="form-group" style="margin-bottom: 1rem;">
+              <textarea id="commentMessage" name="commentMessage" placeholder="Share your thoughts with the community... (max 500 characters)" required maxlength="500" rows="3" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; background: var(--background-color); color: var(--text-color); font-size: 1rem; resize: vertical;" data-testid="input-comment-message"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" style="min-height: 48px;" data-testid="button-post-comment">
+              <i class="fas fa-comment"></i> Post Comment
+            </button>
+          </form>
+          <div id="commentError" style="color: #e74c3c; margin-top: 0.5rem; display: none;"></div>
+        </div>
+        
+        <!-- Comments List -->
+        <div id="commentsList" class="comments-list">
+          <% if (typeof comments !== 'undefined' && comments.length > 0) { %>
+            <% comments.forEach(comment => { %>
+              <div class="comment-item" data-comment-id="<%= comment.id %>" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
+                  <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                      <i class="fas fa-user-circle" style="color: var(--primary-color);"></i>
+                      <strong style="color: var(--text-color);"><%= comment.name %></strong>
+                      <span style="color: var(--text-secondary); font-size: 0.85rem;">
+                        <%= new Date(comment.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                      </span>
+                    </div>
+                    <p style="color: var(--text-secondary); margin: 0; line-height: 1.6;"><%= comment.message %></p>
+                  </div>
+                  <% if (typeof user !== 'undefined' && user && user.role === 'platform_admin') { %>
+                    <button class="delete-comment-btn" data-comment-id="<%= comment.id %>" style="background: rgba(231, 76, 60, 0.2); border: none; color: #e74c3c; padding: 0.75rem; border-radius: 6px; cursor: pointer; min-width: 48px; min-height: 48px; display: flex; align-items: center; justify-content: center;" data-testid="button-delete-comment-<%= comment.id %>">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  <% } %>
+                </div>
+              </div>
+            <% }); %>
+          <% } else { %>
+            <div id="noComments" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+              <i class="fas fa-comment-slash" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+              <p>No comments yet. Be the first to share your thoughts!</p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <%- include('partials/footer') %>
+  
+  <script>
+    // Comment form submission
+    document.getElementById('commentForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const name = document.getElementById('commentName').value.trim();
+      const message = document.getElementById('commentMessage').value.trim();
+      const errorDiv = document.getElementById('commentError');
+      const submitBtn = this.querySelector('button[type="submit"]');
+      
+      if (!name || !message) {
+        errorDiv.textContent = 'Please fill in all fields.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
+      errorDiv.style.display = 'none';
+      
+      try {
+        const response = await fetch('/api/comments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, message })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to post comment');
+        }
+        
+        // Reload page to show new comment
+        window.location.reload();
+      } catch (error) {
+        errorDiv.textContent = error.message;
+        errorDiv.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-comment"></i> Post Comment';
+      }
+    });
+    
+    // Delete comment handlers (admin only)
+    document.querySelectorAll('.delete-comment-btn').forEach(btn => {
+      btn.addEventListener('click', async function() {
+        if (!confirm('Are you sure you want to delete this comment?')) return;
+        
+        const commentId = this.dataset.commentId;
+        
+        try {
+          const response = await fetch('/api/comments/' + commentId, {
+            method: 'DELETE'
+          });
+          
+          if (response.ok) {
+            this.closest('.comment-item').remove();
+            
+            // Check if no comments left
+            const remaining = document.querySelectorAll('.comment-item');
+            if (remaining.length === 0) {
+              document.getElementById('commentsList').innerHTML = `
+                <div id="noComments" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                  <i class="fas fa-comment-slash" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                  <p>No comments yet. Be the first to share your thoughts!</p>
+                </div>
+              `;
+            }
+          }
+        } catch (error) {
+          console.error('Error deleting comment:', error);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

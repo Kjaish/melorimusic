@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Settings - MELORI MUSIC</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <%- include('../partials/header', { user: user }) %>
+
+<style>
+  .settings-container {
+    padding: 1.5rem 1rem;
+    padding-bottom: 100px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .settings-header {
+    margin-bottom: 1.5rem;
+  }
+  
+  .settings-header h1 {
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .settings-header h1 i {
+    color: var(--primary-color);
+  }
+  
+  .settings-header p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+  
+  .settings-section {
+    background: var(--card-background);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+  
+  .section-header {
+    background: rgba(255, 85, 0, 0.1);
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .section-header i {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+  }
+  
+  .section-header h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  .section-body {
+    padding: 1.25rem;
+  }
+  
+  .form-row {
+    margin-bottom: 1.25rem;
+  }
+  
+  .form-row:last-child {
+    margin-bottom: 0;
+  }
+  
+  .form-row label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+  
+  .form-row input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: var(--background-color);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: var(--text-color);
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+  
+  .form-row input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 85, 0, 0.1);
+  }
+  
+  .form-hint {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  
+  .form-hint i {
+    font-size: 0.7rem;
+  }
+  
+  .btn-save {
+    width: 100%;
+    background: linear-gradient(135deg, var(--primary-color) 0%, #cc4400 100%);
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    min-height: 48px;
+  }
+  
+  .btn-save:active {
+    transform: scale(0.98);
+  }
+  
+  .alert {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+  }
+  
+  .alert i {
+    margin-top: 2px;
+  }
+  
+  .alert-success {
+    background: rgba(74, 222, 128, 0.15);
+    color: #4ade80;
+    border: 1px solid rgba(74, 222, 128, 0.3);
+  }
+  
+  .alert-error {
+    background: rgba(248, 113, 113, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(248, 113, 113, 0.3);
+  }
+  
+  .password-toggle {
+    position: relative;
+  }
+  
+  .password-toggle input {
+    padding-right: 3rem;
+  }
+  
+  .password-toggle button {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .password-toggle button:hover {
+    color: var(--primary-color);
+  }
+
+  @media (max-width: 480px) {
+    .settings-container {
+      padding: 1rem 0.75rem;
+    }
+    
+    .section-body {
+      padding: 1rem;
+    }
+  }
+
+  .avatar-upload {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .avatar-preview {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: var(--background-color);
+    border: 3px solid var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .avatar-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .avatar-preview i {
+    font-size: 3rem;
+    color: var(--text-secondary);
+  }
+
+  .avatar-preview .upload-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+    cursor: pointer;
+  }
+
+  .avatar-preview:hover .upload-overlay {
+    opacity: 1;
+  }
+
+  .avatar-preview .upload-overlay i {
+    font-size: 1.5rem;
+    color: white;
+  }
+
+  .avatar-upload-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    transition: transform 0.2s;
+  }
+
+  .avatar-upload-btn:active {
+    transform: scale(0.98);
+  }
+
+  .avatar-upload-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .avatar-message {
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    display: none;
+  }
+
+  .avatar-message.success {
+    display: block;
+    background: rgba(74, 222, 128, 0.15);
+    color: #4ade80;
+  }
+
+  .avatar-message.error {
+    display: block;
+    background: rgba(248, 113, 113, 0.15);
+    color: #f87171;
+  }
+
+  #avatarInput {
+    display: none;
+  }
+</style>
+
+<main class="settings-container">
+  <div class="settings-header">
+    <h1 data-testid="text-settings-title"><i class="fas fa-cog"></i> Account Settings</h1>
+    <p>Manage your login credentials</p>
+  </div>
+  
+  <% if (typeof success !== 'undefined' && success) { %>
+    <div class="alert alert-success" data-testid="alert-success">
+      <i class="fas fa-check-circle"></i>
+      <span>Your credentials have been updated successfully!</span>
+    </div>
+  <% } %>
+  
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="alert alert-error" data-testid="alert-error">
+      <i class="fas fa-exclamation-circle"></i>
+      <span><%= error %></span>
+    </div>
+  <% } %>
+  
+  <div class="settings-section">
+    <div class="section-header">
+      <i class="fas fa-camera"></i>
+      <h2>Profile Picture</h2>
+    </div>
+    <div class="section-body">
+      <div class="avatar-upload">
+        <label for="avatarInput" class="avatar-preview" id="avatarPreview">
+          <% if (user && user.avatar_url) { %>
+            <img src="<%= user.avatar_url %>" alt="Profile" id="avatarImage">
+          <% } else { %>
+            <i class="fas fa-user" id="avatarPlaceholder"></i>
+          <% } %>
+          <div class="upload-overlay">
+            <i class="fas fa-camera"></i>
+          </div>
+        </label>
+        <input type="file" id="avatarInput" name="avatar" accept="image/jpeg,image/png,image/gif,image/webp" data-testid="input-avatar">
+        <label for="avatarInput" class="avatar-upload-btn" id="avatarUploadBtn" data-testid="button-upload-avatar">
+          <i class="fas fa-upload"></i> Choose Photo
+        </label>
+        <div class="avatar-message" id="avatarMessage"></div>
+        <p class="form-hint"><i class="fas fa-info-circle"></i> JPG, PNG, GIF, or WebP. Max 5MB.</p>
+      </div>
+    </div>
+  </div>
+  
+  <form action="/admin/settings" method="POST" data-testid="form-settings">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    
+    <div class="settings-section">
+      <div class="section-header">
+        <i class="fas fa-shield-alt"></i>
+        <h2>Security Verification</h2>
+      </div>
+      <div class="section-body">
+        <div class="form-row">
+          <label for="currentPassword">Current Password</label>
+          <div class="password-toggle">
+            <input type="password" 
+                   id="currentPassword" 
+                   name="currentPassword" 
+                   required 
+                   placeholder="Enter your current password"
+                   data-testid="input-current-password">
+            <button type="button" onclick="togglePassword('currentPassword', this)" aria-label="Toggle password visibility">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          <p class="form-hint"><i class="fas fa-info-circle"></i> Required to make any changes</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="settings-section">
+      <div class="section-header">
+        <i class="fas fa-user"></i>
+        <h2>Profile Information</h2>
+      </div>
+      <div class="section-body">
+        <div class="form-row">
+          <label for="username">Username</label>
+          <input type="text" 
+                 id="username" 
+                 name="username" 
+                 value="<%= user.username %>" 
+                 required 
+                 placeholder="Your username"
+                 data-testid="input-username">
+        </div>
+      </div>
+    </div>
+    
+    <div class="settings-section">
+      <div class="section-header">
+        <i class="fas fa-key"></i>
+        <h2>Change Password</h2>
+      </div>
+      <div class="section-body">
+        <div class="form-row">
+          <label for="newPassword">New Password</label>
+          <div class="password-toggle">
+            <input type="password" 
+                   id="newPassword" 
+                   name="newPassword" 
+                   required 
+                   minlength="6" 
+                   placeholder="Enter new password"
+                   data-testid="input-new-password">
+            <button type="button" onclick="togglePassword('newPassword', this)" aria-label="Toggle password visibility">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          <p class="form-hint"><i class="fas fa-info-circle"></i> Minimum 6 characters</p>
+        </div>
+        
+        <div class="form-row">
+          <label for="confirmPassword">Confirm New Password</label>
+          <div class="password-toggle">
+            <input type="password" 
+                   id="confirmPassword" 
+                   name="confirmPassword" 
+                   required 
+                   placeholder="Confirm new password"
+                   data-testid="input-confirm-password">
+            <button type="button" onclick="togglePassword('confirmPassword', this)" aria-label="Toggle password visibility">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <button type="submit" class="btn-save" data-testid="button-save-settings">
+      <i class="fas fa-save"></i> Save Changes
+    </button>
+  </form>
+</main>
+
+<script>
+function togglePassword(inputId, btn) {
+  const input = document.getElementById(inputId);
+  const icon = btn.querySelector('i');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.classList.remove('fa-eye');
+    icon.classList.add('fa-eye-slash');
+  } else {
+    input.type = 'password';
+    icon.classList.remove('fa-eye-slash');
+    icon.classList.add('fa-eye');
+  }
+}
+
+// Avatar upload handling
+document.addEventListener('DOMContentLoaded', function() {
+  const avatarInput = document.getElementById('avatarInput');
+  const avatarPreview = document.getElementById('avatarPreview');
+  const avatarMessage = document.getElementById('avatarMessage');
+  const uploadBtn = document.getElementById('avatarUploadBtn');
+  
+  if (avatarInput) {
+    avatarInput.addEventListener('change', async function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        showAvatarMessage('File too large. Maximum size is 5MB.', 'error');
+        return;
+      }
+      
+      // Show preview immediately
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        let img = avatarPreview.querySelector('img');
+        const placeholder = avatarPreview.querySelector('#avatarPlaceholder');
+        
+        if (!img) {
+          img = document.createElement('img');
+          img.id = 'avatarImage';
+          img.alt = 'Profile';
+          if (placeholder) placeholder.style.display = 'none';
+          avatarPreview.insertBefore(img, avatarPreview.firstChild);
+        }
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+      
+      // Upload the file
+      uploadBtn.disabled = true;
+      uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+      
+      try {
+        const formData = new FormData();
+        formData.append('avatar', file);
+        
+        // Get CSRF token from the page
+        const csrfToken = '<%= csrfToken %>';
+        
+        const response = await fetch('/admin/settings/avatar', {
+          method: 'POST',
+          headers: {
+            'X-CSRF-Token': csrfToken
+          },
+          body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          showAvatarMessage('Profile picture updated!', 'success');
+          // Update the header avatar if it exists
+          const headerAvatar = document.querySelector('.nav-avatar img');
+          if (headerAvatar) {
+            headerAvatar.src = result.avatarUrl;
+          } else {
+            const navAvatar = document.querySelector('.nav-avatar');
+            if (navAvatar) {
+              const placeholder = navAvatar.querySelector('i');
+              if (placeholder) placeholder.style.display = 'none';
+              const newImg = document.createElement('img');
+              newImg.src = result.avatarUrl;
+              newImg.alt = 'Profile';
+              newImg.className = 'avatar-img';
+              navAvatar.insertBefore(newImg, navAvatar.firstChild);
+            }
+          }
+        } else {
+          showAvatarMessage(result.error || 'Upload failed', 'error');
+        }
+      } catch (err) {
+        showAvatarMessage('Upload failed. Please try again.', 'error');
+      } finally {
+        uploadBtn.disabled = false;
+        uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Choose Photo';
+      }
+    });
+  }
+  
+  function showAvatarMessage(text, type) {
+    avatarMessage.textContent = text;
+    avatarMessage.className = 'avatar-message ' + type;
+    setTimeout(() => {
+      avatarMessage.className = 'avatar-message';
+    }, 5000);
+  }
+});
+</script>
+
+<%- include('../partials/footer-simple') %>
+</body>
+</html>

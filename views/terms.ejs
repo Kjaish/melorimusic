@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms of Service - MELORI MUSIC</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .legal-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    .legal-header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid #333;
+    }
+    .legal-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .legal-header .date {
+      color: #999;
+      font-size: 0.9rem;
+    }
+    .legal-content h2 {
+      color: var(--primary-color);
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+    }
+    .legal-content p, .legal-content li {
+      color: #ccc;
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+    .legal-content ul {
+      padding-left: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .legal-content li {
+      margin-bottom: 0.5rem;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--primary-color);
+      text-decoration: none;
+      margin-bottom: 2rem;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/header', { user: typeof user !== 'undefined' ? user : null }) %>
+  
+  <main class="legal-container">
+    <a href="/" class="back-link" data-testid="link-back"><i class="fas fa-arrow-left"></i> Back to Home</a>
+    
+    <div class="legal-header">
+      <h1><i class="fas fa-file-contract"></i> Terms of Service</h1>
+      <p class="date">Last Updated: January 1, 2026</p>
+    </div>
+    
+    <div class="legal-content">
+      <h2>1. Acceptance of Terms</h2>
+      <p>By accessing and using MELORI MUSIC ("the Platform"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services.</p>
+      
+      <h2>2. Description of Service</h2>
+      <p>MELORI MUSIC is a music marketplace platform that allows:</p>
+      <ul>
+        <li>Visitors to browse, listen to, purchase, and download music</li>
+        <li>Users to leave reviews and comments on music</li>
+        <li>Artists to showcase and sell their original music</li>
+      </ul>
+      
+      <h2>3. User Accounts</h2>
+      <p>To access certain features, you must create an account. You agree to:</p>
+      <ul>
+        <li>Provide accurate and complete registration information</li>
+        <li>Maintain the security of your account credentials</li>
+        <li>Notify us immediately of any unauthorized access</li>
+        <li>Accept responsibility for all activities under your account</li>
+      </ul>
+      
+      <h2>4. Purchases and Payments</h2>
+      <p>All purchases are processed through Stripe, our secure payment provider. By making a purchase:</p>
+      <ul>
+        <li>You agree to pay all applicable charges and fees</li>
+        <li>All sales are final unless otherwise stated</li>
+        <li>Digital downloads are delivered immediately upon payment</li>
+        <li>Promo codes are subject to their specific terms and expiration</li>
+      </ul>
+      
+      <h2>5. Intellectual Property</h2>
+      <p>All content on MELORI MUSIC, including music, artwork, and text, is protected by copyright and other intellectual property laws. You may not:</p>
+      <ul>
+        <li>Reproduce, distribute, or publicly display content without permission</li>
+        <li>Use purchased music for commercial purposes without a license</li>
+        <li>Remove or modify any copyright notices</li>
+      </ul>
+      
+      <h2>6. User Conduct</h2>
+      <p>You agree not to:</p>
+      <ul>
+        <li>Upload or share illegal, harmful, or offensive content</li>
+        <li>Harass, abuse, or harm other users</li>
+        <li>Attempt to gain unauthorized access to the platform</li>
+        <li>Use automated systems to access the service</li>
+        <li>Interfere with the proper functioning of the platform</li>
+      </ul>
+      
+      <h2>7. Content Guidelines</h2>
+      <p>All user-generated content, including reviews and comments, must:</p>
+      <ul>
+        <li>Be respectful and constructive</li>
+        <li>Not contain spam, hate speech, or harassment</li>
+        <li>Not violate any third-party rights</li>
+        <li>Be relevant to the music or artist being discussed</li>
+      </ul>
+      
+      <h2>8. Termination</h2>
+      <p>We reserve the right to terminate or suspend your account at any time for violations of these terms or for any other reason at our discretion.</p>
+      
+      <h2>9. Disclaimer of Warranties</h2>
+      <p>The platform is provided "as is" without warranties of any kind. We do not guarantee uninterrupted or error-free service.</p>
+      
+      <h2>10. Limitation of Liability</h2>
+      <p>MELORI MUSIC shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the platform.</p>
+      
+      <h2>11. Changes to Terms</h2>
+      <p>We may update these terms at any time. Continued use of the platform after changes constitutes acceptance of the new terms.</p>
+      
+      <h2>12. Contact</h2>
+      <p>For questions about these Terms of Service, please contact us at <a href="mailto:support@melorimusic.com" style="color: var(--primary-color);">support@melorimusic.com</a></p>
+    </div>
+  </main>
+  
+  <%- include('partials/footer-simple') %>
+  <script src="/js/main.js"></script>
+</body>
+</html>

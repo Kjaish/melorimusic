@@ -1,0 +1,291 @@
+<header>
+  <nav class="container">
+    <a href="/" class="logo" data-testid="link-logo">
+      <img src="/images/melori-logo.png" alt="Melori Logo">
+      <span>MELORI</span>
+    </a>
+    
+    <div class="header-search">
+      <form action="/search" method="GET">
+        <i class="fas fa-search"></i>
+        <input type="text" 
+               name="q" 
+               id="searchInput"
+               placeholder="Search..." 
+               value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
+               autocomplete="off"
+               data-testid="input-search">
+      </form>
+    </div>
+    
+    <div class="menu-container">
+      <button class="menu-toggle" id="menuToggle" data-testid="button-menu" aria-label="Open menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      
+      <!-- Dropdown Menu -->
+      <div id="nav-dropdown" class="nav-dropdown">
+        <nav class="dropdown-menu">
+          <a href="/" class="dropdown-item" data-testid="menu-home"><i class="fas fa-home"></i> Home</a>
+          <a href="/music" class="dropdown-item" data-testid="menu-music"><i class="fas fa-music"></i> Music</a>
+          <a href="/about" class="dropdown-item" data-testid="menu-about"><i class="fas fa-info-circle"></i> About</a>
+          <a href="/feedback" class="dropdown-item" data-testid="menu-feedback"><i class="fas fa-comments"></i> Feedback</a>
+          <a href="/support" class="dropdown-item" data-testid="menu-support"><i class="fas fa-heart"></i> Support</a>
+          <% if (typeof user === 'undefined' || !user) { %>
+            <a href="/register" class="dropdown-item" data-testid="menu-register"><i class="fas fa-user-plus"></i> Register</a>
+            <a href="/login" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Login</a>
+          <% } %>
+          <% if (typeof user !== 'undefined' && user) { %>
+            <a href="/admin/dashboard" class="dropdown-item"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <a href="/admin/settings" class="dropdown-item"><i class="fas fa-cog"></i> Settings</a>
+            <a href="/logout" class="dropdown-item logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+          <% } %>
+        </nav>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<!-- Backdrop for dropdown -->
+<div class="dropdown-backdrop" id="dropdownBackdrop"></div>
+
+<div class="mobile-search-overlay" id="mobileSearchOverlay">
+  <div class="mobile-search-header">
+    <form action="/search" method="GET" style="flex: 1;">
+      <input type="text" 
+             name="q" 
+             id="mobileSearchInput"
+             class="search-box" 
+             placeholder="Search Artists, Albums, Songs..." 
+             autocomplete="off">
+    </form>
+    <button type="button" class="mobile-search-close" id="mobileSearchClose">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="mobile-search-results" id="mobileSearchResults"></div>
+</div>
+
+<script>
+// Dropdown menu functions
+let menuOpen = false;
+
+function toggleMenu(e) {
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  
+  if (menuOpen) {
+    closeMenu();
+  } else {
+    openMenu();
+  }
+}
+
+function openMenu() {
+  const dropdown = document.getElementById('nav-dropdown');
+  const backdrop = document.getElementById('dropdownBackdrop');
+  const toggle = document.getElementById('menuToggle');
+  
+  if (dropdown) {
+    dropdown.classList.add('active');
+    if (backdrop) backdrop.classList.add('active');
+    if (toggle) toggle.setAttribute('aria-expanded', 'true');
+    menuOpen = true;
+  }
+}
+
+function closeMenu() {
+  const dropdown = document.getElementById('nav-dropdown');
+  const backdrop = document.getElementById('dropdownBackdrop');
+  const toggle = document.getElementById('menuToggle');
+  
+  if (dropdown) {
+    dropdown.classList.remove('active');
+    if (backdrop) backdrop.classList.remove('active');
+    if (toggle) toggle.setAttribute('aria-expanded', 'false');
+    menuOpen = false;
+  }
+}
+
+// Make globally accessible
+window.openNav = openMenu;
+window.closeNav = closeMenu;
+window.toggleMenu = toggleMenu;
+
+// Set up menu toggle click handler
+document.addEventListener('DOMContentLoaded', function() {
+  // Menu toggle button - simple click handling
+  const menuToggle = document.getElementById('menuToggle');
+  if (menuToggle) {
+    // Use click event which works for both mouse and touch
+    menuToggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleMenu();
+    });
+    
+    // Also handle touchend for more responsive mobile experience
+    let touchMoved = false;
+    menuToggle.addEventListener('touchstart', function() {
+      touchMoved = false;
+    }, { passive: true });
+    
+    menuToggle.addEventListener('touchmove', function() {
+      touchMoved = true;
+    }, { passive: true });
+    
+    menuToggle.addEventListener('touchend', function(e) {
+      if (!touchMoved) {
+        e.preventDefault();
+        toggleMenu();
+      }
+    }, { passive: false });
+  }
+  
+  // Backdrop - use touchend for mobile
+  const backdrop = document.getElementById('dropdownBackdrop');
+  if (backdrop) {
+    backdrop.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      closeMenu();
+    }, { passive: false });
+    backdrop.addEventListener('click', closeMenu);
+  }
+  
+  // Swipe gesture navigation for menu items
+  const dropdownMenu = document.querySelector('.dropdown-menu');
+  if (dropdownMenu) {
+    let swipeStartX = 0;
+    let swipeStartY = 0;
+    let focusedIndex = -1;
+    const menuItems = dropdownMenu.querySelectorAll('.dropdown-item');
+    const SWIPE_THRESHOLD = 30; // minimum horizontal swipe distance
+    
+    // Find current page in menu for initial focus
+    const currentPath = window.location.pathname;
+    menuItems.forEach((item, idx) => {
+      const href = item.getAttribute('href');
+      if (href === currentPath) {
+        focusedIndex = idx;
+        item.classList.add('swipe-focused');
+      }
+    });
+    
+    function updateFocus(newIndex) {
+      // Remove old focus
+      menuItems.forEach(item => item.classList.remove('swipe-focused'));
+      // Clamp index
+      focusedIndex = Math.max(0, Math.min(newIndex, menuItems.length - 1));
+      // Add new focus
+      const focusedItem = menuItems[focusedIndex];
+      if (focusedItem) {
+        focusedItem.classList.add('swipe-focused');
+        // Scroll into view if needed
+        focusedItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    }
+    
+    dropdownMenu.addEventListener('touchstart', function(e) {
+      swipeStartX = e.touches[0].clientX;
+      swipeStartY = e.touches[0].clientY;
+    }, { passive: true });
+    
+    dropdownMenu.addEventListener('touchend', function(e) {
+      if (!e.changedTouches.length) return;
+      
+      const deltaX = e.changedTouches[0].clientX - swipeStartX;
+      const deltaY = e.changedTouches[0].clientY - swipeStartY;
+      
+      // Check if horizontal swipe (more horizontal than vertical)
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > SWIPE_THRESHOLD) {
+        e.preventDefault();
+        if (deltaX > 0) {
+          // Swipe right - navigate to focused item
+          if (focusedIndex >= 0 && focusedIndex < menuItems.length) {
+            const href = menuItems[focusedIndex].getAttribute('href');
+            if (href && href !== '#') {
+              closeMenu();
+              window.location.href = href;
+            }
+          }
+        } else {
+          // Swipe left - close menu
+          closeMenu();
+        }
+      }
+    }, { passive: false });
+    
+    // Arrow keys for accessibility
+    dropdownMenu.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        updateFocus(focusedIndex + 1);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        updateFocus(focusedIndex - 1);
+      } else if (e.key === 'Enter' && focusedIndex >= 0) {
+        const href = menuItems[focusedIndex].getAttribute('href');
+        if (href) window.location.href = href;
+      }
+    });
+  }
+  
+  // Handle menu item clicks/taps
+  const dropdownLinks = document.querySelectorAll('.dropdown-item');
+  dropdownLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      const href = this.getAttribute('href');
+      if (href && href !== '#') {
+        closeMenu();
+      }
+    });
+  });
+  
+  // Mobile Search
+  const mobileSearchIcon = document.getElementById('mobileSearchIcon');
+  const mobileSearchOverlay = document.getElementById('mobileSearchOverlay');
+  const mobileSearchClose = document.getElementById('mobileSearchClose');
+  const mobileSearchInput = document.getElementById('mobileSearchInput');
+  
+  if (mobileSearchIcon && mobileSearchOverlay) {
+    mobileSearchIcon.addEventListener('click', function() {
+      mobileSearchOverlay.classList.add('active');
+      mobileSearchInput.focus();
+    });
+    
+    mobileSearchClose.addEventListener('click', function() {
+      mobileSearchOverlay.classList.remove('active');
+    });
+    
+    mobileSearchOverlay.addEventListener('click', function(e) {
+      if (e.target === mobileSearchOverlay) {
+        mobileSearchOverlay.classList.remove('active');
+      }
+    });
+  }
+  
+  // Escape key to close menu
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && menuOpen) {
+      closeMenu();
+    }
+  });
+  
+  // Close menu when clicking anywhere outside
+  document.addEventListener('click', function(e) {
+    if (!menuOpen) return;
+    
+    const dropdown = document.getElementById('nav-dropdown');
+    const toggle = document.getElementById('menuToggle');
+    
+    // Check if click is outside dropdown and toggle button
+    if (dropdown && toggle && !dropdown.contains(e.target) && !toggle.contains(e.target)) {
+      closeMenu();
+    }
+  });
+});
+</script>

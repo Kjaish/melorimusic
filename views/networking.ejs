@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speed Networking - MELORI MUSIC</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <%- include('partials/header', { user: user }) %>
+
+<style>
+  :root {
+    --clubhouse-bg: #121212;
+    --clubhouse-card: #1e1e1e;
+    --clubhouse-border: #2a2a2a;
+    --clubhouse-text: #ffffff;
+    --clubhouse-text-secondary: #a0a0a0;
+    --clubhouse-accent: var(--primary-color);
+  }
+
+  .networking-page {
+    min-height: calc(100vh - 80px);
+    background: var(--background-color);
+    padding-bottom: 100px;
+  }
+  
+  .hallway-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  
+  .hallway-header {
+    text-align: center;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--clubhouse-border);
+    margin-bottom: 1.5rem;
+  }
+  
+  .hallway-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+  
+  .hallway-header h1 i {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+  }
+  
+  .hallway-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    font-size: 1rem;
+    color: var(--text-secondary);
+  }
+  
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .online-indicator {
+    width: 10px;
+    height: 10px;
+    background: #22c55e;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  
+  .start-room-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--primary-color), #cc4400);
+    color: white;
+    border: none;
+    padding: 1rem 1.5rem;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .start-room-btn:active {
+    transform: scale(0.98);
+  }
+  
+  .start-room-btn:hover {
+    box-shadow: 0 4px 20px rgba(255, 85, 0, 0.4);
+  }
+  
+  .section-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .section-label i {
+    color: var(--primary-color);
+  }
+  
+  .rooms-container {
+    margin-bottom: 2rem;
+  }
+  
+  .room-card {
+    background: var(--card-background);
+    border: 1px solid var(--clubhouse-border);
+    border-radius: 16px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  
+  .room-card:hover {
+    border-color: var(--primary-color);
+  }
+  
+  .room-card:active {
+    transform: scale(0.99);
+  }
+  
+  .room-topic {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+  }
+  
+  .room-speakers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .speaker-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .speaker-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), #cc4400);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  
+  .speaker-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  
+  .speaker-name {
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+  
+  .speaker-role {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+  
+  .room-footer {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+  
+  .room-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  
+  .room-stat i {
+    font-size: 0.85rem;
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--text-secondary);
+  }
+  
+  .empty-state i {
+    font-size: 4rem;
+    opacity: 0.3;
+    margin-bottom: 1rem;
+    display: block;
+    color: var(--primary-color);
+  }
+  
+  .empty-state p {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .empty-state span {
+    font-size: 0.95rem;
+  }
+  
+  .top-rooms-section {
+    margin-top: 2rem;
+  }
+  
+  .top-room-card {
+    background: var(--card-background);
+    border: 1px solid var(--clubhouse-border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  
+  .top-room-card:hover {
+    border-color: var(--primary-color);
+  }
+  
+  .top-room-rank {
+    width: 32px;
+    height: 32px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  
+  .top-room-card:nth-child(2) .top-room-rank {
+    background: linear-gradient(135deg, #ffd700, #ffaa00);
+  }
+  
+  .top-room-card:nth-child(3) .top-room-rank {
+    background: linear-gradient(135deg, #c0c0c0, #a0a0a0);
+  }
+  
+  .top-room-card:nth-child(4) .top-room-rank {
+    background: linear-gradient(135deg, #cd7f32, #b87333);
+  }
+  
+  .top-room-info {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .top-room-info h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .top-room-info p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+  
+  .top-room-participants {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  
+  .top-room-participants::before {
+    content: '\f007';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 0.85rem;
+  }
+  
+  /* Room View Styles */
+  .room-view {
+    display: none;
+  }
+  
+  .room-view.active {
+    display: block;
+  }
+  
+  .hallway-view.hidden {
+    display: none;
+  }
+  
+  .room-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--clubhouse-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .room-title-section h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+  
+  .room-timer {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+  
+  .room-timer i {
+    color: var(--primary-color);
+  }
+  
+  .leave-btn {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 44px;
+  }
+  
+  .speakers-section {
+    padding: 1.5rem 1rem;
+    border-bottom: 1px solid var(--clubhouse-border);
+  }
+  
+  .speakers-section h3 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+  }
+  
+  .speakers-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    justify-items: center;
+  }
+  
+  .speaker-circle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    min-width: 80px;
+  }
+  
+  .speaker-circle-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), #cc4400);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 1.4rem;
+    position: relative;
+  }
+  
+  .speaker-circle-avatar.host::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    right: -3px;
+    width: 20px;
+    height: 20px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    border: 2px solid var(--background-color);
+  }
+  
+  .speaker-circle-avatar.muted {
+    opacity: 0.6;
+  }
+  
+  .speaker-circle-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: center;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .listeners-section {
+    padding: 1rem;
+    border-bottom: 1px solid var(--clubhouse-border);
+  }
+  
+  .listeners-section h3 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .listeners-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .listener-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    cursor: pointer;
+  }
+  
+  .listener-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--card-background);
+    border: 2px solid var(--clubhouse-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  
+  .listener-avatar.hand-raised {
+    border-color: var(--primary-color);
+    animation: handPulse 1.5s infinite;
+  }
+  
+  @keyframes handPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 85, 0, 0.4); }
+    50% { box-shadow: 0 0 0 6px rgba(255, 85, 0, 0); }
+  }
+  
+  .listener-name {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    max-width: 50px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+  }
+  
+  .chat-section {
+    padding: 1rem;
+    max-height: 250px;
+    overflow-y: auto;
+    flex: 1;
+  }
+  
+  .chat-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .chat-message {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+  
+  .chat-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--card-background);
+    border: 1px solid var(--clubhouse-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+  }
+  
+  .chat-content {
+    flex: 1;
+  }
+  
+  .chat-username {
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-bottom: 0.15rem;
+  }
+  
+  .chat-text {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+  
+  .chat-system {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    padding: 0.5rem 0;
+  }
+  
+  .chat-input-container {
+    padding: 1rem;
+    border-top: 1px solid var(--clubhouse-border);
+    display: flex;
+    gap: 0.75rem;
+  }
+  
+  .chat-input {
+    flex: 1;
+    background: var(--card-background);
+    border: 1px solid var(--clubhouse-border);
+    border-radius: 25px;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    color: var(--text-color);
+    min-height: 44px;
+  }
+  
+  .chat-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+  }
+  
+  .chat-send-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  
+  .room-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--card-background);
+    border-top: 1px solid var(--clubhouse-border);
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+  
+  .control-btn {
+    background: var(--background-color);
+    border: 1px solid var(--clubhouse-border);
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--text-color);
+    transition: all 0.2s;
+  }
+  
+  .control-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+  }
+  
+  .control-btn.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+  }
+  
+  .control-btn.leave {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: #ef4444;
+    color: #ef4444;
+  }
+  
+  /* Modal Styles */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .modal-overlay.active {
+    display: flex;
+  }
+  
+  .modal-sheet {
+    background: var(--card-background);
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease-out;
+  }
+  
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  
+  .modal-header {
+    padding: 1.25rem;
+    border-bottom: 1px solid var(--clubhouse-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .modal-header h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+  }
+  
+  .modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.5rem;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .modal-body {
+    padding: 1.25rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+  
+  .form-group label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+  }
+  
+  .form-input {
+    width: 100%;
+    background: var(--background-color);
+    border: 1px solid var(--clubhouse-border);
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    font-size: 1rem;
+    color: var(--text-color);
+    min-height: 48px;
+  }
+  
+  .form-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+  }
+  
+  .form-select {
+    width: 100%;
+    background: var(--background-color);
+    border: 1px solid var(--clubhouse-border);
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    font-size: 1rem;
+    color: var(--text-color);
+    min-height: 48px;
+    appearance: none;
+    cursor: pointer;
+  }
+  
+  .modal-actions {
+    padding: 1rem 1.25rem 1.5rem;
+    display: flex;
+    gap: 0.75rem;
+  }
+  
+  .btn-cancel {
+    flex: 1;
+    background: var(--background-color);
+    border: 1px solid var(--clubhouse-border);
+    border-radius: 25px;
+    padding: 0.9rem;
+    font-size: 1rem;
+    color: var(--text-color);
+    cursor: pointer;
+    min-height: 48px;
+  }
+  
+  .btn-submit {
+    flex: 1;
+    background: var(--primary-color);
+    border: none;
+    border-radius: 25px;
+    padding: 0.9rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    min-height: 48px;
+  }
+</style>
+
+<div class="networking-page">
+  <!-- Hallway View (Lobby) -->
+  <div class="hallway-view" id="hallwayView">
+    <div class="hallway-container">
+      <div class="hallway-header">
+        <h1><i class="fas fa-door-open"></i> The Hallway</h1>
+        <div class="hallway-stats">
+          <div class="stat-item">
+            <span class="online-indicator"></span>
+            <span id="onlineCount">0</span> online
+          </div>
+          <div class="stat-item">
+            <i class="fas fa-clock"></i>
+            <span id="timeBalance">0</span> min
+          </div>
+        </div>
+      </div>
+      
+      <button class="start-room-btn" onclick="openCreateModal()" data-testid="button-start-room">
+        <i class="fas fa-plus"></i>
+        Start a Room
+      </button>
+      
+      <div class="rooms-container">
+        <div class="section-label">
+          <i class="fas fa-broadcast-tower"></i>
+          Live Now
+        </div>
+        <div id="roomsList">
+          <div class="empty-state">
+            <i class="fas fa-users"></i>
+            <p>No rooms right now</p>
+            <span>Start one and others will join</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="top-rooms-section">
+        <div class="section-label">
+          <i class="fas fa-trophy"></i>
+          Top Rooms
+        </div>
+        
+        <div class="top-room-card" data-testid="top-room-1">
+          <div class="top-room-rank">1</div>
+          <div class="top-room-info">
+            <h4 id="topRoom1Name">No room yet</h4>
+            <p id="topRoom1Stats">Waiting for activity</p>
+          </div>
+          <div class="top-room-participants" id="topRoom1Count">-</div>
+        </div>
+        
+        <div class="top-room-card" data-testid="top-room-2">
+          <div class="top-room-rank">2</div>
+          <div class="top-room-info">
+            <h4 id="topRoom2Name">No room yet</h4>
+            <p id="topRoom2Stats">Waiting for activity</p>
+          </div>
+          <div class="top-room-participants" id="topRoom2Count">-</div>
+        </div>
+        
+        <div class="top-room-card" data-testid="top-room-3">
+          <div class="top-room-rank">3</div>
+          <div class="top-room-info">
+            <h4 id="topRoom3Name">No room yet</h4>
+            <p id="topRoom3Stats">Waiting for activity</p>
+          </div>
+          <div class="top-room-participants" id="topRoom3Count">-</div>
+        </div>
+        
+        <div class="top-room-card" data-testid="top-room-4">
+          <div class="top-room-rank">4</div>
+          <div class="top-room-info">
+            <h4 id="topRoom4Name">No room yet</h4>
+            <p id="topRoom4Stats">Waiting for activity</p>
+          </div>
+          <div class="top-room-participants" id="topRoom4Count">-</div>
+        </div>
+        
+        <div class="top-room-card" data-testid="top-room-5">
+          <div class="top-room-rank">5</div>
+          <div class="top-room-info">
+            <h4 id="topRoom5Name">No room yet</h4>
+            <p id="topRoom5Stats">Waiting for activity</p>
+          </div>
+          <div class="top-room-participants" id="topRoom5Count">-</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Room View -->
+  <div class="room-view" id="roomView">
+    <div class="room-header">
+      <div class="room-title-section">
+        <h2 id="roomTopic">Room Topic</h2>
+        <div class="room-timer">
+          <i class="fas fa-clock"></i>
+          <span id="roomTimer">0:00</span> remaining
+        </div>
+      </div>
+      <button class="leave-btn" onclick="leaveRoom()" data-testid="button-leave-room">
+        <i class="fas fa-sign-out-alt"></i>
+        Leave
+      </button>
+    </div>
+    
+    <div class="speakers-section">
+      <h3>Speakers</h3>
+      <div class="speakers-grid" id="speakersGrid"></div>
+    </div>
+    
+    <div class="listeners-section">
+      <h3><i class="fas fa-headphones"></i> Listeners (<span id="listenerCount">0</span>)</h3>
+      <div class="listeners-grid" id="listenersGrid"></div>
+    </div>
+    
+    <div class="chat-section">
+      <div class="chat-messages" id="chatMessages"></div>
+    </div>
+    
+    <div class="chat-input-container">
+      <input type="text" class="chat-input" id="chatInput" placeholder="Say something..." maxlength="500" data-testid="input-chat">
+      <button class="chat-send-btn" onclick="sendMessage()" data-testid="button-send">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+    
+    <div class="room-controls">
+      <button class="control-btn" id="raiseHandBtn" onclick="toggleRaiseHand()" data-testid="button-raise-hand">
+        <i class="fas fa-hand-paper"></i>
+      </button>
+      <button class="control-btn" onclick="openConnectModal()" data-testid="button-connect">
+        <i class="fas fa-user-plus"></i>
+      </button>
+      <button class="control-btn" onclick="openAddTimeModal()" data-testid="button-add-time">
+        <i class="fas fa-plus"></i>
+      </button>
+      <button class="control-btn leave" onclick="leaveRoom()" data-testid="button-leave">
+        <i class="fas fa-phone-slash"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Create Room Modal -->
+<div class="modal-overlay" id="createModal">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <h3>Start a Room</h3>
+      <button class="modal-close" onclick="closeCreateModal()" data-testid="button-close-create">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Room Topic</label>
+        <input type="text" class="form-input" id="roomTopicInput" placeholder="What do you want to talk about?" maxlength="100" data-testid="input-topic">
+      </div>
+      <div class="form-group">
+        <label>Room Type</label>
+        <select class="form-select" id="roomTypeSelect" data-testid="select-room-type">
+          <option value="open">Open - Anyone can speak</option>
+          <option value="social">Social - Invite to speak</option>
+          <option value="closed">Closed - Private room</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeCreateModal()" data-testid="button-cancel-create">Cancel</button>
+      <button class="btn-submit" onclick="createRoom()" data-testid="button-create-room">Start Room</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Time Modal -->
+<div class="modal-overlay" id="addTimeModal">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <h3>Add More Time</h3>
+      <button class="modal-close" onclick="closeAddTimeModal()" data-testid="button-close-add-time">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Minutes to Add</label>
+        <select class="form-select" id="addTimeMinutes">
+          <option value="5">5 minutes</option>
+          <option value="10">10 minutes</option>
+          <option value="15">15 minutes</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeAddTimeModal()">Cancel</button>
+      <button class="btn-submit" onclick="addTimeToRoom()">Add Time</button>
+    </div>
+  </div>
+</div>
+
+<!-- Connect Modal -->
+<div class="modal-overlay" id="connectModal">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <h3>Connect with Someone</h3>
+      <button class="modal-close" onclick="closeConnectModal()" data-testid="button-close-connect">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="connectUsersList"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeConnectModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const userId = <%= typeof user !== 'undefined' && user ? user.id : 'null' %>;
+const username = '<%= typeof user !== 'undefined' && user ? user.username : '' %>';
+let socket = null;
+let currentPanelId = null;
+let isHost = false;
+let handRaised = false;
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+  loadRooms();
+  loadTimeBalance();
+  initSocket();
+  
+  // Refresh rooms every 10 seconds
+  setInterval(loadRooms, 10000);
+  
+  // Enter key to send message
+  document.getElementById('chatInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') sendMessage();
+  });
+});
+
+function initSocket() {
+  socket = io('/networking', { 
+    transports: ['websocket', 'polling'],
+    reconnection: true
+  });
+  
+  socket.on('connect', function() {
+    console.log('Connected to networking socket');
+    if (userId) {
+      socket.emit('register', { userId: userId });
+    }
+  });
+  
+  socket.on('room-created', function(data) {
+    currentPanelId = data.panelId;
+    isHost = true;
+    showRoomView(data);
+  });
+  
+  socket.on('joined-panel', function(data) {
+    currentPanelId = data.panelId;
+    showRoomView(data);
+  });
+  
+  socket.on('user-joined', function(data) {
+    addSystemMessage(data.username + ' joined the room');
+    updateParticipants(data.participants);
+  });
+  
+  socket.on('user-left', function(data) {
+    updateParticipants(data.participants);
+  });
+  
+  socket.on('new-message', function(data) {
+    addChatMessage(data);
+  });
+  
+  socket.on('time-updated', function(data) {
+    document.getElementById('roomTimer').textContent = formatTime(data.timeRemaining);
+  });
+  
+  socket.on('panel-ended', function() {
+    alert('The room has ended');
+    showHallwayView();
+  });
+  
+  socket.on('hand-raised', function(data) {
+    addSystemMessage(data.username + ' raised their hand');
+    updateParticipants(data.participants);
+  });
+  
+  socket.on('promoted-to-speaker', function(data) {
+    addSystemMessage(data.username + ' is now a speaker');
+    updateParticipants(data.participants);
+  });
+  
+  socket.on('host-changed', function(data) {
+    addSystemMessage(data.newHostUsername + ' is now the host');
+    if (data.newHostId === userId) {
+      isHost = true;
+      addSystemMessage('You are now the host');
+    }
+    updateParticipants(data.participants);
+  });
+  
+  socket.on('error', function(data) {
+    alert(data.message || 'An error occurred');
+  });
+}
+
+async function loadRooms() {
+  try {
+    const res = await fetch('/api/networking/panels');
+    const data = await res.json();
+    const rooms = data.panels || [];
+    renderRooms(rooms);
+    document.getElementById('onlineCount').textContent = rooms.reduce((sum, r) => sum + (r.participantCount || 1), 0);
+  } catch (err) {
+    console.error('Failed to load rooms:', err);
+  }
+}
+
+function renderRooms(rooms) {
+  const container = document.getElementById('roomsList');
+  
+  if (!rooms || rooms.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <i class="fas fa-users"></i>
+        <p>No rooms right now</p>
+        <span>Start one and others will join</span>
+      </div>
+    `;
+    return;
+  }
+  
+  container.innerHTML = rooms.map(room => `
+    <button class="room-card" onclick="joinRoom('${room.id}')" data-testid="button-join-room-${room.id}" type="button" style="text-align: left; width: 100%;">
+      <div class="room-topic">${escapeHtml(room.topic || 'Open Discussion')}</div>
+      <div class="room-speakers">
+        ${(room.speakers || [room.hostUsername]).slice(0, 3).map(s => {
+          const name = typeof s === 'string' ? s : (s.username || 'User');
+          return `
+            <div class="speaker-item">
+              <div class="speaker-avatar">${name.charAt(0).toUpperCase()}</div>
+              <div class="speaker-details">
+                <div class="speaker-name">${escapeHtml(name)}</div>
+                <div class="speaker-role">Speaker</div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+      <div class="room-footer">
+        <div class="room-stat"><i class="fas fa-users"></i> ${room.participantCount || 1}</div>
+        <div class="room-stat"><i class="fas fa-clock"></i> ${formatTime(room.timeRemaining)}</div>
+      </div>
+    </button>
+  `).join('');
+}
+
+async function loadTimeBalance() {
+  if (!userId) return;
+  try {
+    const res = await fetch('/api/networking/time-balance');
+    const data = await res.json();
+    document.getElementById('timeBalance').textContent = data.balance || 0;
+  } catch (err) {
+    console.error('Failed to load time balance:', err);
+  }
+}
+
+function openCreateModal() {
+  if (!userId) {
+    alert('Please log in to start a room');
+    return;
+  }
+  document.getElementById('createModal').classList.add('active');
+}
+
+function closeCreateModal() {
+  document.getElementById('createModal').classList.remove('active');
+}
+
+async function createRoom() {
+  const topic = document.getElementById('roomTopicInput').value.trim();
+  const type = document.getElementById('roomTypeSelect').value;
+  
+  if (!topic) {
+    alert('Please enter a room topic');
+    return;
+  }
+  
+  try {
+    const res = await fetch('/api/networking/panels/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ topic, type })
+    });
+    
+    if (!res.ok) {
+      const err = await res.json();
+      alert(err.error || 'Failed to create room');
+      return;
+    }
+    
+    const data = await res.json();
+    closeCreateModal();
+    socket.emit('join-panel', { panelId: data.id, username: username });
+  } catch (err) {
+    alert('Failed to create room');
+  }
+}
+
+async function joinRoom(panelId) {
+  if (!userId) {
+    alert('Please log in to join a room');
+    return;
+  }
+  
+  try {
+    const res = await fetch(`/api/networking/panels/join/${panelId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    if (!res.ok) {
+      const err = await res.json();
+      alert(err.error || 'Failed to join room');
+      return;
+    }
+    
+    socket.emit('join-panel', { panelId: panelId, username: username });
+  } catch (err) {
+    alert('Failed to join room');
+  }
+}
+
+function showRoomView(data) {
+  document.getElementById('hallwayView').classList.add('hidden');
+  document.getElementById('roomView').classList.add('active');
+  document.getElementById('roomTopic').textContent = data.topic || 'Open Discussion';
+  document.getElementById('roomTimer').textContent = formatTime(data.timeRemaining);
+  
+  if (data.participants) {
+    updateParticipants(data.participants);
+  }
+  
+  document.getElementById('chatMessages').innerHTML = '';
+  addSystemMessage('Welcome to the room');
+}
+
+function showHallwayView() {
+  document.getElementById('roomView').classList.remove('active');
+  document.getElementById('hallwayView').classList.remove('hidden');
+  currentPanelId = null;
+  isHost = false;
+  handRaised = false;
+  loadRooms();
+}
+
+function updateParticipants(participants) {
+  if (!participants) return;
+  
+  const speakers = participants.filter(p => p.isSpeaker);
+  const listeners = participants.filter(p => !p.isSpeaker);
+  
+  const speakersGrid = document.getElementById('speakersGrid');
+  speakersGrid.innerHTML = speakers.map(p => `
+    <div class="speaker-circle" data-user-id="${p.id}">
+      <div class="speaker-circle-avatar ${p.isHost ? 'host' : ''} ${p.isMuted ? 'muted' : ''}">${(p.username || 'U').charAt(0).toUpperCase()}</div>
+      <div class="speaker-circle-name">${escapeHtml(p.username || 'User')}</div>
+    </div>
+  `).join('');
+  
+  const listenersGrid = document.getElementById('listenersGrid');
+  document.getElementById('listenerCount').textContent = listeners.length;
+  listenersGrid.innerHTML = listeners.map(p => `
+    <div class="listener-item" data-user-id="${p.id}" onclick="handleListenerClick(${p.id}, '${escapeHtml(p.username || '')}')">
+      <div class="listener-avatar ${p.handRaised ? 'hand-raised' : ''}">${(p.username || 'U').charAt(0).toUpperCase()}</div>
+      <div class="listener-name">${escapeHtml(p.username || 'User')}</div>
+    </div>
+  `).join('');
+}
+
+function handleListenerClick(listenerId, listenerName) {
+  if (!isHost) return;
+  
+  if (confirm('Promote ' + listenerName + ' to speaker?')) {
+    socket.emit('promote-to-speaker', { 
+      panelId: currentPanelId, 
+      targetUserId: listenerId 
+    });
+  }
+}
+
+function leaveRoom() {
+  if (currentPanelId) {
+    socket.emit('leave-panel', { panelId: currentPanelId });
+  }
+  showHallwayView();
+}
+
+function toggleRaiseHand() {
+  handRaised = !handRaised;
+  const btn = document.getElementById('raiseHandBtn');
+  btn.classList.toggle('active', handRaised);
+  
+  socket.emit('raise-hand', { 
+    panelId: currentPanelId, 
+    raised: handRaised 
+  });
+}
+
+function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  
+  if (!text || !currentPanelId) return;
+  
+  socket.emit('send-message', {
+    panelId: currentPanelId,
+    message: text
+  });
+  
+  input.value = '';
+}
+
+function addChatMessage(data) {
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-message';
+  div.innerHTML = `
+    <div class="chat-avatar">${(data.username || 'U').charAt(0).toUpperCase()}</div>
+    <div class="chat-content">
+      <div class="chat-username">${escapeHtml(data.username || 'User')}</div>
+      <div class="chat-text">${escapeHtml(data.message)}</div>
+    </div>
+  `;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function addSystemMessage(text) {
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-system';
+  div.textContent = text;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function openAddTimeModal() {
+  document.getElementById('addTimeModal').classList.add('active');
+}
+
+function closeAddTimeModal() {
+  document.getElementById('addTimeModal').classList.remove('active');
+}
+
+async function addTimeToRoom() {
+  const minutes = parseInt(document.getElementById('addTimeMinutes').value);
+  
+  try {
+    const res = await fetch(`/api/networking/panels/add-time/${currentPanelId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ minutes })
+    });
+    
+    if (!res.ok) {
+      const err = await res.json();
+      alert(err.error || 'Failed to add time');
+      return;
+    }
+    
+    closeAddTimeModal();
+    addSystemMessage('Added ' + minutes + ' minutes to the room');
+  } catch (err) {
+    alert('Failed to add time');
+  }
+}
+
+function openConnectModal() {
+  document.getElementById('connectModal').classList.add('active');
+}
+
+function closeConnectModal() {
+  document.getElementById('connectModal').classList.remove('active');
+}
+
+function formatTime(seconds) {
+  if (!seconds || seconds <= 0) return '0:00';
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return mins + ':' + (secs < 10 ? '0' : '') + secs;
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+</script>
+
+<%- include('partials/footer-simple') %>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MELORI MUSIC</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <%- include('partials/header') %>
+  
+  <main class="container">
+    <section class="hero">
+      <h1 style="display: flex; align-items: center; justify-content: center; gap: 0;">
+        <img src="/images/melori-logo.png" alt="Melori Logo" style="height: 125px; width: auto; margin-right: -5px;">
+        MELORI MUSIC PLATFORM
+      </h1>
+      <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="/music" class="btn btn-primary" data-testid="link-browse-music">
+          <i class="fas fa-compact-disc"></i> Browse Music
+        </a>
+        <a href="/feedback" class="btn btn-secondary" data-testid="link-feedback">
+          <i class="fas fa-comments"></i> Share Feedback
+        </a>
+      </div>
+    </section>
+
+    <section class="mission-section" data-testid="section-mission" style="padding: 3rem 1.5rem; background: rgba(255, 85, 0, 0.05); border-radius: 12px; margin: 2rem 0;">
+      <h2 style="text-align: center; font-size: 2rem; margin-bottom: 2rem; color: var(--text-color);">Our Mission</h2>
+      
+      <div style="max-width: 700px; margin: 0 auto; text-align: center;">
+        <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1.5rem;">
+          <i class="fas fa-headphones" style="font-size: 1.5rem; color: var(--primary-color);"></i>
+          <i class="fas fa-music" style="font-size: 1.5rem; color: var(--primary-color);"></i>
+          <i class="fas fa-heart" style="font-size: 1.5rem; color: var(--primary-color);"></i>
+        </div>
+        
+        <p style="color: var(--text-secondary); font-size: 1.1rem; line-height: 1.8; margin-bottom: 1.5rem;">
+          At Melori, we believe music should be free to enjoy—and free to create. Stream every album on us, because great art shouldn't have barriers.
+        </p>
+        
+        <p style="color: var(--text-secondary); font-size: 1.1rem; line-height: 1.8; margin-bottom: 1.5rem;">
+          But here's what makes us different: While other platforms treat music as content to be aggregated and monetized, Melori treats each artist as a business to be empowered. We're not just another streaming service—we're the operating system for the modern independent creative.
+        </p>
+        
+        <p style="color: var(--text-secondary); font-size: 1.1rem; line-height: 1.8; margin-bottom: 1.5rem;">
+          Love streaming our albums? For those who'd like to go a step further, purchasing directly on Melori supports our team of creators the most. It directly fuels our next project and helps us keep the creativity coming. Thank you for being part of this!
+        </p>
+        
+        <p style="color: var(--text-secondary); font-size: 1.1rem; line-height: 1.8; margin-bottom: 1.5rem;">
+          Every purchase bypasses the industry middlemen, sending your support exactly where it belongs: straight into the hands that made the music. Your choice to buy isn't just a transaction—it's direct investment in an artist's next chapter.
+        </p>
+        
+        <p style="color: var(--primary-color); font-size: 1.25rem; font-weight: 600; margin-top: 2rem;">
+          Stream freely. Support directly. Create endlessly.
+        </p>
+      </div>
+    </section>
+  </main>
+  
+  <%- include('partials/player') %>
+  <%- include('partials/footer-simple') %>
+  
+  <script src="/js/main.js"></script>
+</body>
+</html>

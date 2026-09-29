@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In - MELORI MUSIC</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .login-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .login-header .logo {
+      font-size: 2rem;
+      color: var(--primary-color);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .register-link {
+      text-align: center;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #333;
+      color: #999;
+    }
+
+    .register-link a {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .register-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="login-container">
+    <div class="login-box">
+      <div class="login-header">
+        <a href="/" class="logo">
+          <img src="/images/melori-logo.png" alt="Melori Logo" style="height: 65px; width: auto; margin-right: -5px;">
+          MELORI
+        </a>
+        <h1 style="font-size: 1.5rem; margin-top: 0.5rem;"><i class="fas fa-sign-in-alt"></i> Sign In</h1>
+      </div>
+
+      <% if (typeof error !=='undefined' && error) { %>
+        <div class="alert alert-error" data-testid="alert-error">
+          <i class="fas fa-exclamation-circle"></i>
+          <%= error %>
+        </div>
+        <% } %>
+
+          <form action="/login" method="POST">
+
+            <div class="form-group">
+              <label for="username">Username or Email</label>
+              <input type="text" id="username" name="username" class="form-control" required
+                placeholder="Enter your username" data-testid="input-username">
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" id="password" name="password" class="form-control" required
+                placeholder="Enter your password" data-testid="input-password">
+            </div>
+
+            <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem;">
+              <input type="checkbox" id="rememberMe" name="rememberMe" data-testid="checkbox-remember-me">
+              <label for="rememberMe" style="margin: 0; cursor: pointer;">Remember me for 30 days</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;" data-testid="button-login">
+              <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+          </form>
+
+          <div style="text-align: center; margin-top: 1rem;">
+            <a href="/forgot-password" style="color: #999; text-decoration: none; font-size: 0.9rem;"
+              data-testid="link-forgot">Forgot your password?</a>
+          </div>
+
+          <div class="register-link">
+            <p>New to MELORI? <a href="/register" data-testid="link-register">Create an account</a></p>
+          </div>
+    </div>
+  </div>
+
+  <script src="/js/main.js"></script>
+  <script>
+    // Remember username in localStorage
+    document.addEventListener('DOMContentLoaded', function () {
+      const usernameInput = document.getElementById('username');
+      const rememberCheckbox = document.getElementById('rememberMe');
+
+      // Load saved username if exists
+      const savedUsername = localStorage.getItem('kosmi_remember_username');
+      const wasRemembered = localStorage.getItem('kosmi_remember_me') === 'true';
+
+      if (savedUsername && wasRemembered) {
+        usernameInput.value = savedUsername;
+        rememberCheckbox.checked = true;
+      }
+
+      // Save on form submit
+      document.querySelector('form').addEventListener('submit', function () {
+        if (rememberCheckbox.checked) {
+          localStorage.setItem('kosmi_remember_username', usernameInput.value);
+          localStorage.setItem('kosmi_remember_me', 'true');
+        } else {
+          localStorage.removeItem('kosmi_remember_username');
+          localStorage.removeItem('kosmi_remember_me');
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>

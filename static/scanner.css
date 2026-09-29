@@ -1,0 +1,245 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #121212;
+    color: #fff;
+    min-height: 100vh;
+    padding: 2rem;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 0.5rem;
+    color: #ff5500;
+}
+
+h1 i {
+    margin-right: 0.5rem;
+}
+
+p {
+    text-align: center;
+    color: #888;
+    margin-bottom: 2rem;
+}
+
+.upload-area {
+    border: 2px dashed #444;
+    border-radius: 8px;
+    padding: 3rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #1e1e1e;
+    margin-bottom: 2rem;
+}
+
+.upload-area:hover,
+.upload-area.dragging {
+    border-color: #ff5500;
+    background: rgba(255, 85, 0, 0.1);
+}
+
+.upload-area input[type="file"] {
+    display: none;
+}
+
+.upload-text i {
+    color: #ff5500;
+}
+
+.upload-text p {
+    margin: 0.5rem 0;
+}
+
+.upload-text .small {
+    font-size: 0.875rem;
+    color: #666;
+}
+
+#uploadStatus {
+    margin-bottom: 2rem;
+}
+
+.upload-item {
+    background: #1e1e1e;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.upload-item .processing {
+    color: #fbbf24;
+}
+
+.upload-item .success {
+    color: #4ade80;
+}
+
+.upload-item .error {
+    color: #f87171;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #ff5500;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.3s ease;
+}
+
+.btn:hover {
+    background: #e64d00;
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.controls label {
+    color: #888;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.controls select {
+    background: #1e1e1e;
+    color: #fff;
+    border: 1px solid #333;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.controls select:focus {
+    outline: none;
+    border-color: #ff5500;
+}
+
+.song-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.song-card {
+    background: #1e1e1e;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.song-card:hover {
+    transform: translateY(-4px);
+}
+
+.song-header {
+    background: linear-gradient(135deg, #ff5500, #cc4400);
+    padding: 1rem;
+}
+
+.song-header h3 {
+    font-size: 1.125rem;
+    margin-bottom: 0.25rem;
+}
+
+.song-header .artist {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+    text-align: left;
+}
+
+.song-details {
+    padding: 1rem;
+}
+
+.detail {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #333;
+}
+
+.detail:last-child {
+    border-bottom: none;
+}
+
+.detail .label {
+    color: #888;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.detail .label i {
+    width: 16px;
+}
+
+.genre-tag {
+    background: rgba(255, 85, 0, 0.2);
+    color: #ff5500;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.energy-high {
+    color: #f87171;
+}
+
+.energy-medium {
+    color: #fbbf24;
+}
+
+.energy-low {
+    color: #4ade80;
+}
+
+.song-footer {
+    padding: 0.75rem 1rem;
+    background: #252525;
+    color: #666;
+}
+
+.song-footer i {
+    margin-right: 0.25rem;
+}
+
+.no-songs {
+    text-align: center;
+    color: #666;
+    padding: 3rem;
+}
+
+.no-songs a {
+    color: #ff5500;
+    text-decoration: none;
+}
+
+.no-songs a:hover {
+    text-decoration: underline;
+}

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= edit ? 'Edit' : 'Create' %> Storefront - MELORI MUSIC</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  .color-preview {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 2px solid #444;
+    cursor: pointer;
+  }
+  .slug-preview {
+    background: var(--card-background);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-family: monospace;
+    color: var(--primary-color);
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .image-preview {
+    max-width: 200px;
+    max-height: 150px;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    object-fit: cover;
+  }
+  .banner-preview {
+    max-width: 100%;
+    max-height: 150px;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    object-fit: cover;
+  }
+</style>
+</head>
+<body>
+<%- include('../partials/header', { user: user }) %>
+
+<main class="container" style="padding: 1.5rem 1rem; padding-bottom: 100px;">
+  <h1 style="margin-bottom: 2rem;"><%= edit ? 'Edit' : 'Create' %> Storefront</h1>
+  
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="alert alert-error" style="background: var(--error-color); color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+      <i class="fas fa-exclamation-circle"></i> <%= error %>
+    </div>
+  <% } %>
+  
+  <div class="form-container" style="max-width: 700px;">
+    <form action="<%= edit ? '/admin/storefront/' + storefront.id + '/update' : '/admin/storefront/create' %>" method="POST" enctype="multipart/form-data" id="storefrontForm">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      
+      <div class="form-group">
+        <label for="name"><i class="fas fa-store"></i> Storefront Name <span style="color: var(--error-color);">*</span></label>
+        <input type="text" id="name" name="name" class="form-control" required 
+               value="<%= edit && storefront ? storefront.name : '' %>" 
+               placeholder="My Music Store"
+               data-testid="input-name">
+      </div>
+      
+      <div class="form-group">
+        <label for="slug"><i class="fas fa-link"></i> URL Slug <span style="color: var(--error-color);">*</span></label>
+        <input type="text" id="slug" name="slug" class="form-control" required 
+               value="<%= edit && storefront ? storefront.slug : '' %>" 
+               placeholder="my-music-store"
+               pattern="[a-z0-9-]+"
+               title="Only lowercase letters, numbers, and hyphens allowed"
+               data-testid="input-slug">
+        <div class="slug-preview" data-testid="text-slug-preview">
+          <i class="fas fa-globe"></i>
+          <span id="slugPreview"><%= baseUrl %>/store/<%= edit && storefront ? storefront.slug : 'your-slug' %></span>
+        </div>
+        <small style="color: var(--text-secondary);">Only lowercase letters, numbers, and hyphens. This will be your public store URL.</small>
+      </div>
+      
+      <div class="form-group">
+        <label for="description"><i class="fas fa-align-left"></i> Description</label>
+        <textarea id="description" name="description" class="form-control" rows="3" 
+                  placeholder="Tell customers about your music and brand..."
+                  data-testid="input-description"><%= edit && storefront ? (storefront.description || '') : '' %></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label for="primaryColor"><i class="fas fa-palette"></i> Primary Color</label>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <input type="color" id="primaryColor" name="primaryColor" 
+                 value="<%= edit && storefront && storefront.primary_color ? storefront.primary_color : '#FF5500' %>" 
+                 class="color-preview"
+                 data-testid="input-color">
+          <input type="text" id="colorHex" class="form-control" style="max-width: 120px;" 
+                 value="<%= edit && storefront && storefront.primary_color ? storefront.primary_color : '#FF5500' %>"
+                 pattern="^#[0-9A-Fa-f]{6}$"
+                 data-testid="input-color-hex">
+          <span style="color: var(--text-secondary);">Used for buttons and accents</span>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="logo"><i class="fas fa-image"></i> Logo (Optional)</label>
+        <input type="file" id="logo" name="logo" class="form-control" accept="image/*" data-testid="input-logo">
+        <small style="color: var(--text-secondary);">Recommended: Square image, 200x200px or larger</small>
+        <% if (edit && storefront && storefront.logo_url) { %>
+          <div style="margin-top: 0.5rem;">
+            <img src="/uploads/<%= storefront.logo_url %>" alt="Current logo" class="image-preview">
+            <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">Current logo</p>
+          </div>
+        <% } %>
+        <div id="logoPreview"></div>
+      </div>
+      
+      <div class="form-group">
+        <label for="banner"><i class="fas fa-panorama"></i> Banner Image (Optional)</label>
+        <input type="file" id="banner" name="banner" class="form-control" accept="image/*" data-testid="input-banner">
+        <small style="color: var(--text-secondary);">Recommended: 1200x300px or larger</small>
+        <% if (edit && storefront && storefront.banner_url) { %>
+          <div style="margin-top: 0.5rem;">
+            <img src="/uploads/<%= storefront.banner_url %>" alt="Current banner" class="banner-preview">
+            <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">Current banner</p>
+          </div>
+        <% } %>
+        <div id="bannerPreview"></div>
+      </div>
+      
+      <div style="display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap;">
+        <button type="submit" class="btn btn-primary" data-testid="button-save">
+          <i class="fas fa-save"></i> <%= edit ? 'Update' : 'Create' %> Storefront
+        </button>
+        <a href="/admin/storefront" class="btn btn-secondary" data-testid="button-cancel">
+          <i class="fas fa-times"></i> Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</main>
+
+<%- include('../partials/footer-simple') %>
+
+<script>
+  const baseUrl = '<%= baseUrl %>';
+  
+  document.getElementById('name').addEventListener('input', function(e) {
+    const slugInput = document.getElementById('slug');
+    if (!slugInput.dataset.modified) {
+      const slug = e.target.value
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+      slugInput.value = slug;
+      updateSlugPreview(slug);
+    }
+  });
+  
+  document.getElementById('slug').addEventListener('input', function(e) {
+    e.target.dataset.modified = 'true';
+    let value = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+    e.target.value = value;
+    updateSlugPreview(value);
+  });
+  
+  function updateSlugPreview(slug) {
+    document.getElementById('slugPreview').textContent = baseUrl + '/store/' + (slug || 'your-slug');
+  }
+  
+  document.getElementById('primaryColor').addEventListener('input', function(e) {
+    document.getElementById('colorHex').value = e.target.value;
+  });
+  
+  document.getElementById('colorHex').addEventListener('input', function(e) {
+    if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
+      document.getElementById('primaryColor').value = e.target.value;
+    }
+  });
+  
+  document.getElementById('logo').addEventListener('change', function(e) {
+    const preview = document.getElementById('logoPreview');
+    preview.innerHTML = '';
+    if (e.target.files && e.target.files[0]) {
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(e.target.files[0]);
+      img.className = 'image-preview';
+      preview.appendChild(img);
+    }
+  });
+  
+  document.getElementById('banner').addEventListener('change', function(e) {
+    const preview = document.getElementById('bannerPreview');
+    preview.innerHTML = '';
+    if (e.target.files && e.target.files[0]) {
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(e.target.files[0]);
+      img.className = 'banner-preview';
+      preview.appendChild(img);
+    }
+  });
+</script>
+</body>
+</html>

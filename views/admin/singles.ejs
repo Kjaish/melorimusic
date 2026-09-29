@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Singles - MELORI MUSIC</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<%- include('../partials/header', { user: user }) %>
+
+<style>
+  .singles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem 0;
+  }
+  
+  .single-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: grab;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    border: 2px solid transparent;
+  }
+  
+  .single-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+  
+  .single-card.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+    transform: scale(1.02);
+    box-shadow: 0 12px 32px rgba(255, 85, 0, 0.3);
+    border-color: var(--accent);
+  }
+  
+  .single-card.drag-over {
+    border-color: var(--accent);
+    background: rgba(255, 85, 0, 0.1);
+  }
+  
+  .drop-placeholder {
+    background: rgba(255, 85, 0, 0.15);
+    border: 2px dashed var(--accent);
+    border-radius: 12px;
+    min-height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  
+  .drop-placeholder i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .single-card-image {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    background: #222;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .single-card-image.placeholder {
+    background: linear-gradient(135deg, #1a1a1a, #333);
+  }
+  
+  .single-card-image.placeholder i {
+    font-size: 3rem;
+    color: #555;
+  }
+  
+  .single-card-content {
+    padding: 1rem;
+  }
+  
+  .single-card-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .single-card-meta {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .single-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  
+  .single-card-actions .btn {
+    flex: 1;
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+  
+  .drag-handle {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    padding: 0.5rem;
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 10;
+  }
+  
+  .single-card:hover .drag-handle {
+    opacity: 1;
+  }
+  
+  .order-badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background: var(--accent);
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.85rem;
+    z-index: 10;
+  }
+  
+  .save-order-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--accent);
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    z-index: 1000;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+  }
+  
+  .save-order-bar.visible {
+    transform: translateY(0);
+  }
+  
+  .save-order-bar button {
+    background: white;
+    color: var(--accent);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  
+  .save-order-bar button:hover {
+    opacity: 0.9;
+  }
+  
+  .save-order-bar button.cancel {
+    background: transparent;
+    color: white;
+    border: 1px solid white;
+  }
+  
+  .view-toggle {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: 1rem;
+  }
+  
+  .view-toggle button {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .view-toggle button.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+  
+  .table-view {
+    display: none;
+  }
+  
+  .grid-view.hidden, .table-view.hidden, .compact-view.hidden {
+    display: none;
+  }
+  
+  .table-view:not(.hidden) {
+    display: block;
+  }
+  
+  .compact-view:not(.hidden) {
+    display: grid;
+  }
+  
+  /* Compact grid view - smaller cards */
+  .compact-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.75rem;
+    padding: 1rem 0;
+  }
+  
+  .compact-card {
+    background: var(--card-bg);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  .compact-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  
+  .compact-card-image {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+  }
+  
+  .compact-card-content {
+    padding: 0.5rem;
+  }
+  
+  .compact-card-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .compact-card-price {
+    font-size: 0.65rem;
+    color: var(--accent);
+    margin-top: 0.2rem;
+  }
+</style>
+
+<main class="container" style="padding: 1.5rem 1rem; padding-bottom: 100px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <h1>Manage Singles</h1>
+      <div class="view-toggle">
+        <button type="button" class="active" data-view="grid" data-testid="button-view-grid" title="Normal grid">
+          <i class="fas fa-th-large"></i>
+        </button>
+        <button type="button" data-view="compact" data-testid="button-view-compact" title="Compact grid">
+          <i class="fas fa-th"></i>
+        </button>
+        <button type="button" data-view="table" data-testid="button-view-table" title="List view">
+          <i class="fas fa-list"></i>
+        </button>
+      </div>
+    </div>
+    <a href="/admin/singles/new" class="btn btn-primary" data-testid="button-add-single">
+      <i class="fas fa-plus"></i> Add New Single
+    </a>
+  </div>
+  
+  <% if (singles && singles.length > 0) { %>
+    <p style="color: var(--text-muted); margin-bottom: 1rem;">
+      <i class="fas fa-info-circle"></i> Drag and drop singles to reorder them. Changes will be saved automatically.
+    </p>
+    
+    <!-- Grid View -->
+    <div class="singles-grid grid-view" id="singlesGrid" data-testid="singles-grid">
+      <% singles.forEach((single, index) => { %>
+        <div class="single-card" draggable="true" data-single-id="<%= single.id %>" data-testid="single-card-<%= single.id %>">
+          <span class="order-badge"><%= index + 1 %></span>
+          <span class="drag-handle"><i class="fas fa-grip-vertical"></i></span>
+          <% if (single.cover_art) { %>
+            <img src="/uploads/album_art/<%= single.cover_art %>" alt="<%= single.title %>" class="single-card-image" onerror="this.src='/uploads/album_art/default.jpg'">
+          <% } else { %>
+            <div class="single-card-image placeholder">
+              <i class="fas fa-music"></i>
+            </div>
+          <% } %>
+          <div class="single-card-content">
+            <div class="single-card-title"><%= single.title %></div>
+            <div class="single-card-meta">
+              <span>$<%= parseFloat(single.price).toFixed(2) %></span>
+              <span><%= single.play_count || 0 %> plays</span>
+            </div>
+            <div class="single-card-actions">
+              <a href="/admin/singles/edit/<%= single.id %>" class="btn btn-small btn-secondary" data-testid="button-edit-single-<%= single.id %>">
+                <i class="fas fa-edit"></i> Edit
+              </a>
+              <form action="/admin/singles/delete/<%= single.id %>" method="POST" style="flex: 1;" class="delete-form">
+                <button type="submit" class="btn btn-small btn-danger" style="width: 100%;" data-testid="button-delete-single-<%= single.id %>">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+    
+    <!-- Table View (List - no images) -->
+    <div class="table-view hidden">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Price</th>
+            <th>Plays</th>
+            <th>Added</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% singles.forEach((single, index) => { %>
+            <tr data-testid="row-single-<%= single.id %>">
+              <td><%= index + 1 %></td>
+              <td><%= single.title %></td>
+              <td>$<%= parseFloat(single.price).toFixed(2) %></td>
+              <td><%= single.play_count || 0 %></td>
+              <td><%= single.created_at ? new Date(single.created_at).toLocaleDateString() : 'N/A' %></td>
+              <td>
+                <a href="/admin/singles/edit/<%= single.id %>" class="btn btn-small btn-secondary" data-testid="button-edit-table-single-<%= single.id %>">
+                  <i class="fas fa-edit"></i> Edit
+                </a>
+                <form action="/admin/singles/delete/<%= single.id %>" method="POST" style="display: inline;" class="delete-form">
+                  <button type="submit" class="btn btn-small btn-danger" data-testid="button-delete-table-single-<%= single.id %>">
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Compact View (Small images) -->
+    <div class="compact-view hidden" data-testid="singles-compact">
+      <% singles.forEach((single) => { %>
+        <a href="/admin/singles/edit/<%= single.id %>" class="compact-card" data-testid="compact-single-<%= single.id %>">
+          <% if (single.cover_art) { %>
+            <img src="/uploads/album_art/<%= single.cover_art %>" alt="<%= single.title %>" class="compact-card-image" onerror="this.src='/uploads/album_art/default.jpg'">
+          <% } else { %>
+            <div class="compact-card-image" style="background: linear-gradient(135deg, #1a1a1a, #333); display: flex; align-items: center; justify-content: center;">
+              <i class="fas fa-music" style="font-size: 1.5rem; color: #555;"></i>
+            </div>
+          <% } %>
+          <div class="compact-card-content">
+            <div class="compact-card-title"><%= single.title %></div>
+            <div class="compact-card-price">$<%= parseFloat(single.price).toFixed(2) %></div>
+          </div>
+        </a>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="empty-state">
+      <i class="fas fa-music" style="font-size: 4rem; color: #666; margin-bottom: 1rem; display: block;"></i>
+      <h2>No Singles Yet</h2>
+      <p>Start by adding your first single track.</p>
+      <a href="/admin/singles/new" class="btn btn-primary" style="margin-top: 1rem;">
+        <i class="fas fa-plus"></i> Add Single
+      </a>
+    </div>
+  <% } %>
+</main>
+
+<!-- Save Order Bar -->
+<div class="save-order-bar" id="saveOrderBar">
+  <span><i class="fas fa-arrows-alt"></i> Single order changed</span>
+  <div style="display: flex; gap: 1rem;">
+    <button type="button" class="cancel" id="cancelOrder" data-testid="button-cancel-order">Cancel</button>
+    <button type="button" id="saveOrder" data-testid="button-save-order"><i class="fas fa-save"></i> Save Order</button>
+  </div>
+</div>
+
+<%- include('../partials/footer-simple') %>
+
+<script src="/js/main.js"></script>
+<script>
+  (function() {
+    const grid = document.getElementById('singlesGrid');
+    const saveOrderBar = document.getElementById('saveOrderBar');
+    const saveOrderBtn = document.getElementById('saveOrder');
+    const cancelOrderBtn = document.getElementById('cancelOrder');
+    const viewToggleBtns = document.querySelectorAll('.view-toggle button');
+    const gridView = document.querySelector('.grid-view');
+    const tableView = document.querySelector('.table-view');
+    const compactView = document.querySelector('.compact-view');
+    
+    let draggedElement = null;
+    let placeholder = null;
+    let originalOrder = [];
+    let hasOrderChanged = false;
+    
+    // Store original order
+    if (grid) {
+      originalOrder = Array.from(grid.querySelectorAll('.single-card')).map(card => card.dataset.singleId);
+    }
+    
+    // View toggle
+    viewToggleBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        const view = this.dataset.view;
+        viewToggleBtns.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Hide all views first
+        if (gridView) gridView.classList.add('hidden');
+        if (tableView) tableView.classList.add('hidden');
+        if (compactView) compactView.classList.add('hidden');
+        
+        // Show selected view
+        if (view === 'grid' && gridView) {
+          gridView.classList.remove('hidden');
+        } else if (view === 'table' && tableView) {
+          tableView.classList.remove('hidden');
+        } else if (view === 'compact' && compactView) {
+          compactView.classList.remove('hidden');
+        }
+      });
+    });
+    
+    // Delete confirmation
+    document.querySelectorAll('.delete-form').forEach(form => {
+      form.addEventListener('submit', function(e) {
+        if (!confirm('Are you sure you want to delete this single?')) {
+          e.preventDefault();
+        }
+      });
+    });
+    
+    if (!grid) return;
+    
+    // Create placeholder element
+    function createPlaceholder() {
+      const ph = document.createElement('div');
+      ph.className = 'drop-placeholder';
+      ph.innerHTML = '<div style="text-align: center;"><i class="fas fa-arrow-down"></i><br>Drop here</div>';
+      return ph;
+    }
+    
+    // Update order badges
+    function updateOrderBadges() {
+      const cards = grid.querySelectorAll('.single-card');
+      cards.forEach((card, index) => {
+        const badge = card.querySelector('.order-badge');
+        if (badge) badge.textContent = index + 1;
+      });
+    }
+    
+    // Check if order changed
+    function checkOrderChanged() {
+      const currentOrder = Array.from(grid.querySelectorAll('.single-card')).map(card => card.dataset.singleId);
+      hasOrderChanged = JSON.stringify(currentOrder) !== JSON.stringify(originalOrder);
+      
+      if (hasOrderChanged) {
+        saveOrderBar.classList.add('visible');
+      } else {
+        saveOrderBar.classList.remove('visible');
+      }
+    }
+    
+    // Drag start
+    grid.addEventListener('dragstart', function(e) {
+      if (!e.target.classList.contains('single-card')) return;
+      
+      draggedElement = e.target;
+      draggedElement.classList.add('dragging');
+      
+      // Create placeholder
+      placeholder = createPlaceholder();
+      
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', e.target.dataset.singleId);
+      
+      // Delay adding placeholder to avoid visual glitch
+      setTimeout(() => {
+        if (draggedElement && draggedElement.parentNode) {
+          draggedElement.parentNode.insertBefore(placeholder, draggedElement.nextSibling);
+        }
+      }, 0);
+    });
+    
+    // Drag over
+    grid.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      
+      const afterElement = getDragAfterElement(grid, e.clientY, e.clientX);
+      
+      if (placeholder && placeholder.parentNode) {
+        if (afterElement == null) {
+          grid.appendChild(placeholder);
+        } else if (afterElement !== placeholder && afterElement !== draggedElement) {
+          grid.insertBefore(placeholder, afterElement);
+        }
+      }
+    });
+    
+    // Drag enter on cards
+    grid.addEventListener('dragenter', function(e) {
+      if (e.target.classList.contains('single-card') && e.target !== draggedElement) {
+        e.target.classList.add('drag-over');
+      }
+    });
+    
+    // Drag leave on cards
+    grid.addEventListener('dragleave', function(e) {
+      if (e.target.classList.contains('single-card')) {
+        e.target.classList.remove('drag-over');
+      }
+    });
+    
+    // Drop
+    grid.addEventListener('drop', function(e) {
+      e.preventDefault();
+      
+      if (placeholder && draggedElement) {
+        placeholder.parentNode.insertBefore(draggedElement, placeholder);
+        placeholder.remove();
+      }
+      
+      // Remove all drag-over classes
+      grid.querySelectorAll('.single-card').forEach(card => {
+        card.classList.remove('drag-over');
+      });
+      
+      updateOrderBadges();
+      checkOrderChanged();
+    });
+    
+    // Drag end
+    grid.addEventListener('dragend', function(e) {
+      if (draggedElement) {
+        draggedElement.classList.remove('dragging');
+      }
+      
+      if (placeholder && placeholder.parentNode) {
+        placeholder.remove();
+      }
+      
+      // Remove all drag-over classes
+      grid.querySelectorAll('.single-card').forEach(card => {
+        card.classList.remove('drag-over');
+      });
+      
+      draggedElement = null;
+      placeholder = null;
+    });
+    
+    // Get element after cursor position
+    function getDragAfterElement(container, y, x) {
+      const draggableElements = [...container.querySelectorAll('.single-card:not(.dragging)')];
+      
+      return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offsetY = y - box.top - box.height / 2;
+        const offsetX = x - box.left - box.width / 2;
+        
+        // Calculate distance from center
+        const distance = Math.sqrt(offsetY * offsetY + offsetX * offsetX);
+        
+        if (offsetY < 0 && distance < (closest.distance || Infinity)) {
+          return { distance: distance, element: child };
+        } else {
+          return closest;
+        }
+      }, {}).element;
+    }
+    
+    // Save order
+    saveOrderBtn.addEventListener('click', async function() {
+      const cards = grid.querySelectorAll('.single-card');
+      const singleOrders = Array.from(cards).map((card, index) => ({
+        id: parseInt(card.dataset.singleId),
+        order: index
+      }));
+      
+      try {
+        saveOrderBtn.disabled = true;
+        saveOrderBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        
+        const response = await fetch('/api/admin/singles/reorder', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ singleOrders })
+        });
+        
+        if (response.ok) {
+          originalOrder = Array.from(cards).map(card => card.dataset.singleId);
+          hasOrderChanged = false;
+          saveOrderBar.classList.remove('visible');
+          
+          // Show success message briefly
+          saveOrderBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+          setTimeout(() => {
+            saveOrderBtn.innerHTML = '<i class="fas fa-save"></i> Save Order';
+            saveOrderBtn.disabled = false;
+          }, 1500);
+        } else {
+          throw new Error('Failed to save order');
+        }
+      } catch (error) {
+        console.error('Error saving order:', error);
+        alert('Failed to save single order. Please try again.');
+        saveOrderBtn.innerHTML = '<i class="fas fa-save"></i> Save Order';
+        saveOrderBtn.disabled = false;
+      }
+    });
+    
+    // Cancel order change
+    cancelOrderBtn.addEventListener('click', function() {
+      // Restore original order
+      const cards = Array.from(grid.querySelectorAll('.single-card'));
+      
+      originalOrder.forEach(id => {
+        const card = cards.find(c => c.dataset.singleId === id);
+        if (card) grid.appendChild(card);
+      });
+      
+      updateOrderBadges();
+      hasOrderChanged = false;
+      saveOrderBar.classList.remove('visible');
+    });
+  })();
+</script>
+</body>
+</html>

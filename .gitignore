@@ -1,0 +1,108 @@
+node_modules
+dist
+.DS_Store
+server/public
+vite.config.ts.*
+*.tar.gz
+
+# Build and Release Folders
+bin-debug/
+bin-release/
+[Oo]bj/
+[Bb]in/
+
+# Other files and folders
+.settings/
+
+music.db
+public/uploads/
+public/uploads/**
+
+
+
+# Executables
+*.swf
+*.air
+*.ipa
+*.apk
+
+# Environment files (exclude local .env but allow .env.production for deployment)
+node_modules/
+dist/
+build/
+.DS_Store
+.vscode/
+.idea/
+.local/
+
+# Local secrets and browser/session artifacts
+.env
+.env.*
+!.env.example
+cookies*.txt
+
+# Local data and generated media
+*.db
+*.sqlite
+*.sqlite3
+uploads/
+public/uploads/
+attached_assets/
+server/public/
+stripe.exe
+
+# Generated and temporary files
+vite.config.ts.*
+*.tar.gz
+logs/
+*.log
+npm-debug.log*
+pm2-*.log
+*.tmp
+*.temp
+.cache/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE and editor files
+*.swp
+*.swo
+
+# Deployment secrets and production data stay outside version control.
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pm2-*.log
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+music_queue.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Scripts (keep deployment scripts, exclude local test scripts)
+update_audio_paths.py
+fix_album_names.py
+
+# IMPORTANT: Keep these files for deployment
+# !music.db (database with albums)
+# !public/uploads/music_files/** (audio files)
+# !.env.production (production configuration template)
+music.db
+public/uploads/

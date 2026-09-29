@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= edit ? 'Edit' : 'Add New' %> Single - MELORI MUSIC</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<%- include('../partials/header', { user: user }) %>
+
+<main class="container" style="padding: 1.5rem 1rem; padding-bottom: 100px;">
+  <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+    <a href="/admin/singles" class="btn btn-secondary" data-testid="button-back-singles">
+      <i class="fas fa-arrow-left"></i> Back
+    </a>
+    <h1><%= edit ? 'Edit' : 'Add New' %> Single</h1>
+  </div>
+  
+  <form action="<%= edit ? '/admin/singles/update/' + single.id : '/admin/singles' %>" method="POST" enctype="multipart/form-data" class="form-card">
+    <div class="form-group">
+      <label for="title">Title</label>
+      <input type="text" id="title" name="title" class="form-control" value="<%= edit ? single.title : '' %>" required data-testid="input-single-title">
+    </div>
+    
+    <div class="form-group">
+      <label for="price">Price ($)</label>
+      <input type="number" id="price" name="price" class="form-control" step="0.01" min="0" value="<%= edit ? single.price : '0.99' %>" required data-testid="input-single-price">
+    </div>
+    
+    <div class="form-group">
+      <label for="coverArt">Cover Art</label>
+      <% if (edit && single.cover_art) { %>
+        <div style="margin-bottom: 0.5rem;">
+          <img src="/uploads/album_art/<%= single.cover_art %>" alt="Current cover" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">
+        </div>
+      <% } %>
+      <input type="file" id="coverArt" name="coverArt" class="form-control" accept="image/*" data-testid="input-single-cover">
+      <small style="color: var(--text-secondary);"><%= edit ? 'Upload new image to replace current cover' : 'Recommended: Square image, at least 500x500px' %></small>
+    </div>
+    
+    <div class="form-group">
+      <label for="audioFile">Audio File</label>
+      <% if (edit && single.file_path) { 
+        const audioPath = single.file_path.startsWith('/objects/') 
+          ? single.file_path 
+          : '/uploads/music_files/' + single.file_path;
+      %>
+        <div style="margin-bottom: 0.5rem;">
+          <audio controls style="max-width: 100%;">
+            <source src="<%= audioPath %>" type="audio/mpeg">
+          </audio>
+        </div>
+      <% } %>
+      <input type="file" id="audioFile" name="audioFile" class="form-control" accept=".mp3,.wav,.m4a,.flac,.ogg,audio/*" <%= edit ? '' : 'required' %> data-testid="input-single-audio">
+      <small style="color: var(--text-secondary);"><%= edit ? 'Upload new file to replace current audio' : 'Supported: MP3, WAV, M4A, FLAC, OGG (max 100MB)' %></small>
+      <div id="uploadProgress" style="display: none; margin-top: 1rem; padding: 1rem; background: #FFDAB9; border: 2px solid #FFCBA4; border-radius: 8px; text-align: center;">
+        <i class="fas fa-spinner fa-spin fa-2x" style="color: #FF8C00;"></i>
+        <p id="uploadProgressText" style="margin-top: 0.5rem; margin-bottom: 0; color: #333;">Uploading file... This may take a moment.</p>
+      </div>
+    </div>
+    
+    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+      <button type="submit" class="btn btn-primary" data-testid="button-save-single">
+        <i class="fas fa-save"></i> <%= edit ? 'Update' : 'Create' %> Single
+      </button>
+      <a href="/admin/singles" class="btn btn-secondary" data-testid="button-cancel-single">
+        Cancel
+      </a>
+    </div>
+  </form>
+</main>
+
+<%- include('../partials/footer-simple') %>
+
+<script src="/js/main.js"></script>
+<script>
+  // Show loading indicator on form submit
+  document.querySelector('form').addEventListener('submit', function(e) {
+    const audioInput = document.getElementById('audioFile');
+    const hasFile = audioInput.files && audioInput.files.length > 0;
+    
+    // Disable submit button
+    const submitBtn = document.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (hasFile ? 'Uploading...' : 'Saving...');
+    
+    // Show progress if uploading a file
+    if (hasFile) {
+      const progressDiv = document.getElementById('uploadProgress');
+      const progressText = document.getElementById('uploadProgressText');
+      progressDiv.style.display = 'block';
+      
+      const fileSize = (audioInput.files[0].size / (1024 * 1024)).toFixed(1);
+      progressText.textContent = 'Uploading ' + audioInput.files[0].name + ' (' + fileSize + ' MB)... Please wait.';
+      
+      // Hide the file input while uploading
+      audioInput.style.display = 'none';
+    }
+  });
+</script>
+</body>
+</html>

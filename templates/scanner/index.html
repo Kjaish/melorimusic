@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Upload Scanner</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Music Upload Scanner</h1>
+        <p style="text-align: center; color: #718096; margin-bottom: 20px;">Upload songs for automatic analysis</p>
+        
+        <div class="upload-area" id="uploadArea">
+            <input type="file" id="fileInput" accept=".mp3,.wav,.flac,.ogg" multiple>
+            <div class="upload-text">
+                <p style="font-size: 2rem; margin-bottom: 10px;">Click or drag files here</p>
+                <p>Supports MP3, WAV, FLAC, OGG</p>
+            </div>
+        </div>
+        
+        <div id="uploadStatus"></div>
+        
+        <div style="text-align: center;">
+            <a href="/queue" class="btn">View Queue</a>
+        </div>
+    </div>
+    
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const status = document.getElementById('uploadStatus');
+        
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragging');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragging');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragging');
+            handleFiles(e.dataTransfer.files);
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+        
+        function handleFiles(files) {
+            status.innerHTML = '';
+            Array.from(files).forEach(file => {
+                uploadFile(file);
+            });
+        }
+        
+        async function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            const item = document.createElement('div');
+            item.className = 'upload-item';
+            item.innerHTML = `${file.name} - <span class="processing">Processing...</span>`;
+            status.appendChild(item);
+            
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    item.innerHTML = `${file.name} - <span class="success">Uploaded & Analyzed</span>`;
+                } else {
+                    item.innerHTML = `${file.name} - <span class="error">Upload failed</span>`;
+                }
+            } catch (error) {
+                item.innerHTML = `${file.name} - <span class="error">Network error</span>`;
+            }
+        }
+    </script>
+</body>
+</html>

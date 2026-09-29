@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Promo Codes - MELORI MUSIC</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<%- include('../partials/header', { user: user }) %>
+
+<style>
+  .promo-container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .stat-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+  }
+  
+  .stat-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .stat-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+  }
+  
+  .stat-card-icon.campaigns { background: rgba(139, 92, 246, 0.2); color: #8b5cf6; }
+  .stat-card-icon.available { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+  .stat-card-icon.redeemed { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+  .stat-card-icon.total { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+  
+  .stat-card-title {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .stat-card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-top: 0.5rem;
+    color: var(--text-color);
+  }
+  
+  .data-section {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+  }
+  
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .section-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .section-title i {
+    color: var(--accent);
+  }
+  
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .data-table th,
+  .data-table td {
+    padding: 0.875rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .data-table th {
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: rgba(0,0,0,0.2);
+  }
+  
+  .data-table tr:hover {
+    background: rgba(255,255,255,0.02);
+  }
+  
+  .status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  
+  .status-badge.active {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+  }
+  
+  .status-badge.inactive {
+    background: rgba(107, 114, 128, 0.15);
+    color: #6b7280;
+  }
+  
+  .keyword-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: rgba(255, 85, 0, 0.15);
+    color: var(--accent);
+    border-radius: 4px;
+    font-weight: 600;
+    font-family: monospace;
+    font-size: 0.9rem;
+  }
+  
+  .reward-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: rgba(139, 92, 246, 0.15);
+    color: #8b5cf6;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: capitalize;
+  }
+  
+  .action-btns {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .btn-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  
+  .btn-icon.generate {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+  }
+  
+  .btn-icon.generate:hover {
+    background: #10b981;
+    color: white;
+  }
+  
+  .btn-icon.deactivate {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+  }
+  
+  .btn-icon.deactivate:hover {
+    background: #ef4444;
+    color: white;
+  }
+  
+  .campaign-form {
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    display: none;
+  }
+  
+  .campaign-form.visible {
+    display: block;
+  }
+  
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 0.75rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-color);
+    font-size: 0.95rem;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-muted);
+  }
+  
+  .empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+  
+  .codes-remaining {
+    font-weight: 600;
+  }
+  
+  .codes-remaining.low {
+    color: #f59e0b;
+  }
+  
+  .codes-remaining.empty {
+    color: #ef4444;
+  }
+  
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+  }
+  
+  .modal-overlay.visible {
+    display: flex;
+  }
+  
+  .modal-content {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 400px;
+    width: 100%;
+    border: 1px solid var(--border-color);
+  }
+  
+  .modal-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+  }
+  
+  @media (max-width: 768px) {
+    .data-table {
+      display: block;
+      overflow-x: auto;
+    }
+    
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<main class="container promo-container" style="padding: 1.5rem 1rem; padding-bottom: 100px;">
+  <div class="page-header">
+    <h1><i class="fas fa-ticket-alt" style="color: var(--accent);"></i> Promo Codes</h1>
+    <button type="button" class="btn btn-primary" id="toggleFormBtn" data-testid="button-new-campaign">
+      <i class="fas fa-plus"></i> New Campaign
+    </button>
+  </div>
+  
+  <div class="stats-grid">
+    <div class="stat-card" data-testid="stat-campaigns">
+      <div class="stat-card-header">
+        <span class="stat-card-title">Active Campaigns</span>
+        <div class="stat-card-icon campaigns"><i class="fas fa-bullhorn"></i></div>
+      </div>
+      <div class="stat-card-value"><%= stats?.active_campaigns || 0 %></div>
+    </div>
+    
+    <div class="stat-card" data-testid="stat-available">
+      <div class="stat-card-header">
+        <span class="stat-card-title">Available Codes</span>
+        <div class="stat-card-icon available"><i class="fas fa-ticket-alt"></i></div>
+      </div>
+      <div class="stat-card-value"><%= stats?.available_codes || 0 %></div>
+    </div>
+    
+    <div class="stat-card" data-testid="stat-redeemed">
+      <div class="stat-card-header">
+        <span class="stat-card-title">Redeemed Codes</span>
+        <div class="stat-card-icon redeemed"><i class="fas fa-check-circle"></i></div>
+      </div>
+      <div class="stat-card-value"><%= stats?.redeemed_codes || 0 %></div>
+    </div>
+    
+    <div class="stat-card" data-testid="stat-redemptions">
+      <div class="stat-card-header">
+        <span class="stat-card-title">Total Redemptions</span>
+        <div class="stat-card-icon total"><i class="fas fa-gift"></i></div>
+      </div>
+      <div class="stat-card-value"><%= stats?.total_redemptions || 0 %></div>
+    </div>
+  </div>
+  
+  <div class="data-section">
+    <div class="section-header">
+      <h2 class="section-title"><i class="fas fa-bullhorn"></i> Campaigns</h2>
+    </div>
+    
+    <div class="campaign-form" id="campaignForm">
+      <form action="/admin/promo/campaigns" method="POST" id="createCampaignForm">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="keyword">Keyword</label>
+            <input type="text" id="keyword" name="keyword" placeholder="e.g., SUMMER2024" required maxlength="50" data-testid="input-keyword">
+          </div>
+          
+          <div class="form-group">
+            <label for="name">Campaign Name</label>
+            <input type="text" id="name" name="name" placeholder="e.g., Summer Sale" required data-testid="input-name">
+          </div>
+          
+          <div class="form-group">
+            <label for="rewardType">Reward Type</label>
+            <select id="rewardType" name="reward_type" required data-testid="select-reward-type">
+              <option value="album">Album (ALB-)</option>
+              <option value="single">Track/Single (TRK-)</option>
+              <option value="subscription">Subscription (SUB-)</option>
+              <option value="discount">Discount (DSC-)</option>
+              <option value="merchandise">Merchandise (MER-)</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="maxRedemptions">Max Redemptions</label>
+            <input type="number" id="maxRedemptions" name="max_redemptions" value="1000" min="1" data-testid="input-max-redemptions">
+          </div>
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label for="description">Description (Optional)</label>
+          <textarea id="description" name="description" rows="2" placeholder="Campaign description..." data-testid="input-description"></textarea>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="cancelFormBtn" data-testid="button-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" data-testid="button-create-campaign">
+            <i class="fas fa-plus"></i> Create Campaign
+          </button>
+        </div>
+      </form>
+    </div>
+    
+    <% if (campaigns && campaigns.length > 0) { %>
+      <table class="data-table" data-testid="table-campaigns">
+        <thead>
+          <tr>
+            <th>Keyword</th>
+            <th>Name</th>
+            <th>Reward</th>
+            <th>Codes Available</th>
+            <th>Redemptions</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% campaigns.forEach((campaign, index) => { 
+            const codesRemaining = (campaign.codes_available || 0);
+            const codesClass = codesRemaining === 0 ? 'empty' : codesRemaining < 20 ? 'low' : '';
+          %>
+            <tr data-testid="row-campaign-<%= campaign.id %>">
+              <td><span class="keyword-badge"><%= campaign.keyword %></span></td>
+              <td><%= campaign.name %></td>
+              <td><span class="reward-badge"><%= campaign.reward_type %></span></td>
+              <td><span class="codes-remaining <%= codesClass %>"><%= codesRemaining %></span></td>
+              <td><%= campaign.current_redemptions %> / <%= campaign.max_redemptions %></td>
+              <td>
+                <span class="status-badge <%= campaign.is_active ? 'active' : 'inactive' %>">
+                  <%= campaign.is_active ? 'Active' : 'Inactive' %>
+                </span>
+              </td>
+              <td>
+                <div class="action-btns">
+                  <button type="button" class="btn-icon generate" title="Generate Codes" 
+                          onclick="generateCodes(<%= campaign.id %>)" data-testid="button-generate-<%= campaign.id %>">
+                    <i class="fas fa-plus"></i>
+                  </button>
+                  <% if (campaign.is_active) { %>
+                    <form action="/admin/promo/campaigns/<%= campaign.id %>/deactivate" method="POST" style="display: inline;">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button type="submit" class="btn-icon deactivate" title="Deactivate" data-testid="button-deactivate-<%= campaign.id %>">
+                        <i class="fas fa-power-off"></i>
+                      </button>
+                    </form>
+                  <% } %>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <div class="empty-state">
+        <i class="fas fa-bullhorn"></i>
+        <p>No campaigns created yet. Create your first campaign to start distributing promo codes.</p>
+      </div>
+    <% } %>
+  </div>
+  
+  <div class="data-section">
+    <div class="section-header">
+      <h2 class="section-title"><i class="fas fa-ticket-alt"></i> All Promo Codes</h2>
+      <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+        <select id="filterCampaign" onchange="filterCodes()" data-testid="select-filter-campaign" style="padding: 0.5rem; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-color);">
+          <option value="">All Campaigns</option>
+          <% if (campaigns) { campaigns.forEach(c => { %>
+            <option value="<%= c.keyword %>"><%= c.keyword %> - <%= c.name %></option>
+          <% }); } %>
+        </select>
+        <select id="filterStatus" onchange="filterCodes()" data-testid="select-filter-status" style="padding: 0.5rem; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-color);">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="redeemed">Redeemed</option>
+        </select>
+      </div>
+    </div>
+    
+    <% if (allCodes && allCodes.length > 0) { %>
+      <div style="margin-bottom: 1rem; color: var(--text-muted); font-size: 0.9rem;">
+        Showing <strong id="codeCount"><%= allCodes.length %></strong> codes
+      </div>
+      <div style="max-height: 400px; overflow-y: auto;">
+        <table class="data-table" data-testid="table-codes" id="codesTable">
+          <thead style="position: sticky; top: 0; background: var(--card-bg); z-index: 10;">
+            <tr>
+              <th>Code</th>
+              <th>Campaign</th>
+              <th>Status</th>
+              <th>Redeemed By</th>
+              <th>Redeemed At</th>
+            </tr>
+          </thead>
+          <tbody id="codesTableBody">
+            <% allCodes.forEach((code, index) => { %>
+              <tr data-testid="row-code-<%= index %>" data-campaign="<%= code.keyword %>" data-status="<%= code.status %>">
+                <td><code style="background: rgba(255,85,0,0.1); padding: 0.25rem 0.5rem; border-radius: 4px; font-family: monospace;"><%= code.code %></code></td>
+                <td><span class="keyword-badge"><%= code.keyword %></span></td>
+                <td>
+                  <span class="status-badge <%= code.status === 'active' ? 'active' : 'inactive' %>">
+                    <%= code.status %>
+                  </span>
+                </td>
+                <td><%= code.redeemed_by_email || '-' %></td>
+                <td><%= code.redeemed_at ? new Date(code.redeemed_at).toLocaleString() : '-' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } else { %>
+      <div class="empty-state">
+        <i class="fas fa-ticket-alt"></i>
+        <p>No promo codes generated yet. Create a campaign and generate codes to see them here.</p>
+      </div>
+    <% } %>
+  </div>
+
+  <div class="data-section">
+    <div class="section-header">
+      <h2 class="section-title"><i class="fas fa-history"></i> Recent Redemptions</h2>
+    </div>
+    
+    <% if (redemptions && redemptions.length > 0) { %>
+      <table class="data-table" data-testid="table-redemptions">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Campaign</th>
+            <th>Reward</th>
+            <th>Redeemed At</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% redemptions.forEach((redemption, index) => { %>
+            <tr data-testid="row-redemption-<%= index %>">
+              <td><%= redemption.email %></td>
+              <td><span class="keyword-badge"><%= redemption.keyword || redemption.campaign_name %></span></td>
+              <td>
+                <span class="reward-badge"><%= redemption.reward_type %></span>
+                <% if (redemption.reward_item_title) { %>
+                  - <%= redemption.reward_item_title %>
+                <% } %>
+              </td>
+              <td><%= new Date(redemption.redeemed_at).toLocaleString() %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <div class="empty-state">
+        <i class="fas fa-gift"></i>
+        <p>No redemptions yet.</p>
+      </div>
+    <% } %>
+  </div>
+</main>
+
+<div class="modal-overlay" id="generateModal">
+  <div class="modal-content" style="max-width: 600px;">
+    <h3 class="modal-title"><i class="fas fa-magic" style="color: var(--accent);"></i> Code Generator</h3>
+    
+    <div id="generateForm">
+      <input type="hidden" id="generateCampaignId">
+      <div class="form-group" style="margin-bottom: 1.5rem;">
+        <label for="generateCount">Number of Codes to Generate</label>
+        <input type="number" id="generateCount" value="100" min="1" max="1000" data-testid="input-code-count" style="width: 100%;">
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeGenerateModal()" data-testid="button-cancel-generate">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="doGenerateCodes()" id="generateBtn" data-testid="button-confirm-generate">
+          <i class="fas fa-magic"></i> Generate Codes
+        </button>
+      </div>
+    </div>
+    
+    <div id="generateLoading" style="display: none; text-align: center; padding: 2rem;">
+      <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--accent);"></i>
+      <p style="margin-top: 1rem; color: var(--text-muted);">Generating codes...</p>
+    </div>
+    
+    <div id="generateResults" style="display: none;">
+      <div style="background: rgba(16, 185, 129, 0.15); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+        <i class="fas fa-check-circle" style="color: #10b981;"></i>
+        <span id="generatedCountMsg" style="color: #10b981; font-weight: 600;"></span>
+      </div>
+      
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label>Generated Codes (Click to copy all)</label>
+        <textarea id="generatedCodesText" readonly 
+          style="width: 100%; height: 200px; font-family: monospace; font-size: 0.9rem; resize: none; cursor: pointer;"
+          onclick="copyGeneratedCodes()" data-testid="textarea-generated-codes"></textarea>
+      </div>
+      
+      <div class="form-actions" style="flex-wrap: wrap;">
+        <button type="button" class="btn btn-secondary" onclick="copyGeneratedCodes()" data-testid="button-copy-codes">
+          <i class="fas fa-copy"></i> Copy All
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="downloadCodes()" data-testid="button-download-codes">
+          <i class="fas fa-download"></i> Download CSV
+        </button>
+        <button type="button" class="btn btn-primary" onclick="generateMore()" data-testid="button-generate-more">
+          <i class="fas fa-plus"></i> Generate More
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="closeAndRefresh()" data-testid="button-close-refresh">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer-simple') %>
+
+<script src="/js/main.js"></script>
+<script>
+(function() {
+  const toggleFormBtn = document.getElementById('toggleFormBtn');
+  const cancelFormBtn = document.getElementById('cancelFormBtn');
+  const campaignForm = document.getElementById('campaignForm');
+  const generateModal = document.getElementById('generateModal');
+  
+  toggleFormBtn.addEventListener('click', function() {
+    campaignForm.classList.toggle('visible');
+    this.innerHTML = campaignForm.classList.contains('visible') 
+      ? '<i class="fas fa-times"></i> Cancel' 
+      : '<i class="fas fa-plus"></i> New Campaign';
+  });
+  
+  cancelFormBtn.addEventListener('click', function() {
+    campaignForm.classList.remove('visible');
+    toggleFormBtn.innerHTML = '<i class="fas fa-plus"></i> New Campaign';
+  });
+  
+  let currentCampaignId = null;
+  let generatedCodesList = [];
+  let currentKeyword = '';
+  
+  window.generateCodes = function(campaignId) {
+    currentCampaignId = campaignId;
+    document.getElementById('generateCampaignId').value = campaignId;
+    document.getElementById('generateForm').style.display = 'block';
+    document.getElementById('generateLoading').style.display = 'none';
+    document.getElementById('generateResults').style.display = 'none';
+    generateModal.classList.add('visible');
+  };
+  
+  window.closeGenerateModal = function() {
+    generateModal.classList.remove('visible');
+  };
+  
+  window.closeAndRefresh = function() {
+    generateModal.classList.remove('visible');
+    window.location.reload();
+  };
+  
+  window.doGenerateCodes = async function() {
+    const count = parseInt(document.getElementById('generateCount').value) || 100;
+    
+    document.getElementById('generateForm').style.display = 'none';
+    document.getElementById('generateLoading').style.display = 'block';
+    document.getElementById('generateResults').style.display = 'none';
+    
+    try {
+      const response = await fetch('/api/admin/promo/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ campaign_id: currentCampaignId, count })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        generatedCodesList = data.codes;
+        currentKeyword = data.keyword;
+        
+        document.getElementById('generatedCountMsg').textContent = 
+          `Successfully generated ${data.count} codes for ${data.keyword}`;
+        document.getElementById('generatedCodesText').value = data.codes.join('\n');
+        
+        document.getElementById('generateLoading').style.display = 'none';
+        document.getElementById('generateResults').style.display = 'block';
+      } else {
+        alert('Error: ' + (data.error || 'Failed to generate codes'));
+        document.getElementById('generateLoading').style.display = 'none';
+        document.getElementById('generateForm').style.display = 'block';
+      }
+    } catch (error) {
+      console.error('Error generating codes:', error);
+      alert('Failed to generate codes. Please try again.');
+      document.getElementById('generateLoading').style.display = 'none';
+      document.getElementById('generateForm').style.display = 'block';
+    }
+  };
+  
+  window.copyGeneratedCodes = function() {
+    const textarea = document.getElementById('generatedCodesText');
+    textarea.select();
+    document.execCommand('copy');
+    
+    const btn = document.querySelector('[data-testid="button-copy-codes"]');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    setTimeout(() => { btn.innerHTML = originalText; }, 2000);
+  };
+  
+  window.downloadCodes = function() {
+    const csv = 'Code\n' + generatedCodesList.join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `promo-codes-${currentKeyword}-${Date.now()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+  
+  window.generateMore = function() {
+    document.getElementById('generateForm').style.display = 'block';
+    document.getElementById('generateResults').style.display = 'none';
+  };
+  
+  window.filterCodes = function() {
+    const campaignFilter = document.getElementById('filterCampaign').value;
+    const statusFilter = document.getElementById('filterStatus').value;
+    const rows = document.querySelectorAll('#codesTableBody tr');
+    let visibleCount = 0;
+    
+    rows.forEach(row => {
+      const campaign = row.getAttribute('data-campaign');
+      const status = row.getAttribute('data-status');
+      
+      const matchesCampaign = !campaignFilter || campaign === campaignFilter;
+      const matchesStatus = !statusFilter || status === statusFilter;
+      
+      if (matchesCampaign && matchesStatus) {
+        row.style.display = '';
+        visibleCount++;
+      } else {
+        row.style.display = 'none';
+      }
+    });
+    
+    document.getElementById('codeCount').textContent = visibleCount;
+  };
+  
+  generateModal.addEventListener('click', function(e) {
+    if (e.target === generateModal) {
+      closeGenerateModal();
+    }
+  });
+  
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeGenerateModal();
+    }
+  });
+})();
+</script>
+</body>
+</html>

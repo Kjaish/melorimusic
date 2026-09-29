@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pricing - MELORI MUSIC</title>
+  <meta name="description" content="Choose the perfect plan for your music career. From free creator accounts to professional label management tools.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .pricing-hero {
+      text-align: center;
+      padding: 4rem 1.5rem 2rem;
+    }
+
+    .pricing-hero h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      margin-bottom: 1rem;
+      background: linear-gradient(45deg, var(--primary-color), #ffaa00);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .pricing-hero p {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .billing-toggle {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+
+    .billing-toggle span {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .billing-toggle span.active {
+      color: var(--text-color);
+      font-weight: 600;
+    }
+
+    .toggle-switch {
+      width: 60px;
+      height: 30px;
+      background: var(--card-background);
+      border-radius: 15px;
+      cursor: pointer;
+      position: relative;
+      border: 2px solid #444;
+      transition: all 0.3s;
+    }
+
+    .toggle-switch::before {
+      content: '';
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      background: var(--primary-color);
+      border-radius: 50%;
+      top: 2px;
+      left: 3px;
+      transition: transform 0.3s;
+    }
+
+    .toggle-switch.yearly::before {
+      transform: translateX(28px);
+    }
+
+    .save-badge {
+      background: var(--success-color);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      padding: 2rem 0 4rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .pricing-card {
+      background: var(--card-background);
+      border-radius: 15px;
+      padding: 2rem;
+      position: relative;
+      border: 2px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(255, 85, 0, 0.15);
+    }
+
+    .pricing-card.popular {
+      border-color: var(--primary-color);
+    }
+
+    .pricing-card.current {
+      border-color: var(--success-color);
+    }
+
+    .popular-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--primary-color);
+      color: white;
+      padding: 0.25rem 1rem;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .current-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--success-color);
+      color: white;
+      padding: 0.25rem 1rem;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .plan-icon {
+      font-size: 2.5rem;
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+    }
+
+    .plan-name {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .plan-description {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .plan-price {
+      margin-bottom: 1.5rem;
+    }
+
+    .price-amount {
+      font-size: 3rem;
+      font-weight: bold;
+    }
+
+    .price-period {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .plan-price .original-price {
+      color: var(--text-secondary);
+      text-decoration: line-through;
+      font-size: 1rem;
+      margin-right: 0.5rem;
+    }
+
+    .features-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 2rem 0;
+    }
+
+    .features-list li {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .features-list li:last-child {
+      border-bottom: none;
+    }
+
+    .features-list li i.fa-check {
+      color: var(--success-color);
+    }
+
+    .features-list li i.fa-times {
+      color: var(--text-secondary);
+    }
+
+    .features-list li.disabled {
+      color: var(--text-secondary);
+    }
+
+    .plan-button {
+      width: 100%;
+      padding: 1rem;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .plan-button.primary {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .plan-button.primary:hover {
+      background: var(--primary-dark);
+      transform: scale(1.02);
+    }
+
+    .plan-button.secondary {
+      background: transparent;
+      color: var(--text-color);
+      border: 2px solid var(--text-secondary);
+    }
+
+    .plan-button.secondary:hover {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .plan-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .plan-button:disabled:hover {
+      transform: none;
+    }
+
+    .commission-highlight {
+      background: rgba(255, 85, 0, 0.1);
+      padding: 0.25rem 0.5rem;
+      border-radius: 5px;
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+
+    .faq-section {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 3rem 1rem;
+    }
+
+    .faq-section h2 {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 1.8rem;
+    }
+
+    .faq-item {
+      background: var(--card-background);
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+
+    .faq-question {
+      padding: 1.25rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+    }
+
+    .faq-question:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .faq-answer {
+      padding: 0 1.25rem 1.25rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      display: none;
+    }
+
+    .faq-item.active .faq-answer {
+      display: block;
+    }
+
+    .faq-item.active .faq-question i {
+      transform: rotate(180deg);
+    }
+
+    @media (max-width: 768px) {
+      .pricing-grid {
+        grid-template-columns: 1fr;
+        padding: 1rem;
+      }
+
+      .pricing-card {
+        padding: 1.5rem;
+      }
+
+      .price-amount {
+        font-size: 2.5rem;
+      }
+
+      .billing-toggle {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/header') %>
+
+  <main class="container">
+    <section class="pricing-hero">
+      <h1 data-testid="text-pricing-title">Choose Your Plan</h1>
+      <p>Start for free, scale as you grow. Lower commission rates and more features to power your music career.</p>
+    </section>
+
+    <div class="billing-toggle" data-testid="billing-toggle">
+      <span class="active" id="monthlyLabel">Monthly</span>
+      <div class="toggle-switch" id="billingToggle" data-testid="button-billing-toggle"></div>
+      <span id="yearlyLabel">Yearly</span>
+      <span class="save-badge">Save 17%</span>
+    </div>
+
+    <div class="pricing-grid" data-testid="pricing-grid">
+      <% plans.forEach((plan, index) => { %>
+        <div class="pricing-card <%= plan.name === 'pro' ? 'popular' : '' %> <%= userPlan && userPlan.name === plan.name ? 'current' : '' %>" data-testid="card-plan-<%= plan.name %>">
+          <% if (plan.name === 'pro' && (!userPlan || userPlan.name !== 'pro')) { %>
+            <span class="popular-badge">Most Popular</span>
+          <% } %>
+          <% if (userPlan && userPlan.name === plan.name) { %>
+            <span class="current-badge">Current Plan</span>
+          <% } %>
+
+          <div class="plan-icon">
+            <% if (plan.name === 'creator') { %>
+              <i class="fas fa-music"></i>
+            <% } else if (plan.name === 'pro') { %>
+              <i class="fas fa-rocket"></i>
+            <% } else { %>
+              <i class="fas fa-building"></i>
+            <% } %>
+          </div>
+
+          <h3 class="plan-name" data-testid="text-plan-name-<%= plan.name %>">
+            <%= plan.name.charAt(0).toUpperCase() + plan.name.slice(1) %>
+          </h3>
+
+          <p class="plan-description">
+            <% if (plan.name === 'creator') { %>
+              Perfect for artists just getting started
+            <% } else if (plan.name === 'pro') { %>
+              For serious artists ready to grow
+            <% } else { %>
+              For labels managing multiple artists
+            <% } %>
+          </p>
+
+          <div class="plan-price" data-testid="text-plan-price-<%= plan.name %>">
+            <% if (plan.price_monthly) { %>
+              <span class="price-amount monthly-price">$<%= parseFloat(plan.price_monthly).toFixed(2) %></span>
+              <span class="price-amount yearly-price" style="display: none;">$<%= (parseFloat(plan.price_yearly) / 12).toFixed(2) %></span>
+              <span class="price-period">/month</span>
+              <div class="yearly-savings" style="display: none; margin-top: 0.5rem;">
+                <span class="original-price">$<%= (parseFloat(plan.price_monthly) * 12).toFixed(2) %>/yr</span>
+                <span style="color: var(--success-color);">$<%= parseFloat(plan.price_yearly).toFixed(2) %>/yr</span>
+              </div>
+            <% } else { %>
+              <span class="price-amount">Free</span>
+              <span class="price-period">forever</span>
+            <% } %>
+          </div>
+
+          <ul class="features-list" data-testid="list-features-<%= plan.name %>">
+            <li>
+              <i class="fas fa-check"></i>
+              <span class="commission-highlight"><%= (plan.commission_rate * 100).toFixed(0) %>%</span> commission rate
+            </li>
+            <li>
+              <i class="fas fa-check"></i>
+              <%= plan.max_storefronts %> storefront<%= plan.max_storefronts > 1 ? 's' : '' %>
+            </li>
+            <li>
+              <i class="fas fa-check"></i>
+              <% if (plan.max_uploads) { %>
+                <%= plan.max_uploads %> uploads
+              <% } else { %>
+                Unlimited uploads
+              <% } %>
+            </li>
+            <li>
+              <i class="fas fa-check"></i>
+              <%= plan.payout_frequency.charAt(0).toUpperCase() + plan.payout_frequency.slice(1) %> payouts
+            </li>
+            <% 
+              const features = typeof plan.features === 'string' ? JSON.parse(plan.features) : plan.features;
+            %>
+            <li class="<%= features.analytics === 'basic' ? 'disabled' : '' %>">
+              <i class="fas fa-<%= features.analytics === 'basic' ? 'times' : 'check' %>"></i>
+              <% if (features.analytics === 'basic') { %>
+                Basic analytics
+              <% } else if (features.analytics === 'advanced') { %>
+                Advanced analytics
+              <% } else { %>
+                Enterprise analytics
+              <% } %>
+            </li>
+            <li class="<%= !features.custom_domain ? 'disabled' : '' %>">
+              <i class="fas fa-<%= features.custom_domain ? 'check' : 'times' %>"></i>
+              Custom domain
+            </li>
+            <% if (plan.name === 'label') { %>
+              <li>
+                <i class="fas fa-check"></i>
+                Team management
+              </li>
+              <li>
+                <i class="fas fa-check"></i>
+                API access
+              </li>
+            <% } %>
+          </ul>
+
+          <% if (user) { %>
+            <% if (userPlan && userPlan.name === plan.name) { %>
+              <button class="plan-button secondary" disabled data-testid="button-current-plan-<%= plan.name %>">
+                Current Plan
+              </button>
+            <% } else if (plan.name === 'creator') { %>
+              <% if (userPlan && userPlan.name !== 'creator') { %>
+                <button class="plan-button secondary" onclick="cancelSubscription()" data-testid="button-downgrade-<%= plan.name %>">
+                  <i class="fas fa-arrow-down"></i> Downgrade
+                </button>
+              <% } else { %>
+                <button class="plan-button secondary" disabled>
+                  Current Plan
+                </button>
+              <% } %>
+            <% } else { %>
+              <button class="plan-button primary" onclick="subscribeToPlan('<%= plan.name %>')" data-testid="button-subscribe-<%= plan.name %>">
+                <% if (!userPlan || userPlan.name === 'creator') { %>
+                  <i class="fas fa-arrow-up"></i> Upgrade
+                <% } else if (userPlan.name === 'pro' && plan.name === 'label') { %>
+                  <i class="fas fa-arrow-up"></i> Upgrade
+                <% } else { %>
+                  <i class="fas fa-exchange-alt"></i> Switch Plan
+                <% } %>
+              </button>
+            <% } %>
+          <% } else { %>
+            <% if (plan.name === 'creator') { %>
+              <a href="/register" class="plan-button primary" data-testid="button-get-started-<%= plan.name %>">
+                Get Started Free
+              </a>
+            <% } else { %>
+              <a href="/register?plan=<%= plan.name %>" class="plan-button primary" data-testid="button-get-started-<%= plan.name %>">
+                Get Started
+              </a>
+            <% } %>
+          <% } %>
+        </div>
+      <% }); %>
+    </div>
+
+    <section class="faq-section" data-testid="faq-section">
+      <h2>Frequently Asked Questions</h2>
+
+      <div class="faq-item" data-testid="faq-item-1">
+        <div class="faq-question">
+          <span>What payment methods do you accept?</span>
+          <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+          We accept all major credit cards (Visa, Mastercard, American Express) and debit cards through our secure Stripe payment processing.
+        </div>
+      </div>
+
+      <div class="faq-item" data-testid="faq-item-2">
+        <div class="faq-question">
+          <span>Can I change plans later?</span>
+          <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+          Yes! You can upgrade or downgrade your plan at any time. When upgrading, you'll be charged the prorated difference. When downgrading, your new rate will apply at the next billing cycle.
+        </div>
+      </div>
+
+      <div class="faq-item" data-testid="faq-item-3">
+        <div class="faq-question">
+          <span>What happens to my content if I downgrade?</span>
+          <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+          Your existing content remains accessible, but you'll need to remove content exceeding your new plan's limits before uploading new content.
+        </div>
+      </div>
+
+      <div class="faq-item" data-testid="faq-item-4">
+        <div class="faq-question">
+          <span>How do payouts work?</span>
+          <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+          Creator plan artists receive monthly payouts with a $10 minimum. Pro and Label plan members enjoy weekly payouts with no minimum threshold. All payouts are processed through Stripe Connect.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <%- include('partials/footer-simple') %>
+
+  <script>
+    let isYearly = false;
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Billing toggle - allow click on toggle switch
+      const billingToggle = document.getElementById('billingToggle');
+      if (billingToggle) {
+        billingToggle.addEventListener('click', toggleBilling);
+      }
+
+      // Also allow clicking on Monthly/Yearly labels
+      const monthlyLabel = document.getElementById('monthlyLabel');
+      const yearlyLabel = document.getElementById('yearlyLabel');
+      if (monthlyLabel) {
+        monthlyLabel.addEventListener('click', function() {
+          if (isYearly) toggleBilling();
+        });
+      }
+      if (yearlyLabel) {
+        yearlyLabel.addEventListener('click', function() {
+          if (!isYearly) toggleBilling();
+        });
+      }
+
+      // FAQ toggles
+      const faqQuestions = document.querySelectorAll('.faq-question');
+      faqQuestions.forEach(function(question) {
+        question.addEventListener('click', function() {
+          const item = this.parentElement;
+          item.classList.toggle('active');
+        });
+      });
+    });
+
+    function toggleBilling() {
+      isYearly = !isYearly;
+      
+      const toggle = document.getElementById('billingToggle');
+      const monthlyLabel = document.getElementById('monthlyLabel');
+      const yearlyLabel = document.getElementById('yearlyLabel');
+      const monthlyPrices = document.querySelectorAll('.monthly-price');
+      const yearlyPrices = document.querySelectorAll('.yearly-price');
+      const yearlySavings = document.querySelectorAll('.yearly-savings');
+
+      if (isYearly) {
+        toggle.classList.add('yearly');
+        monthlyLabel.classList.remove('active');
+        yearlyLabel.classList.add('active');
+        monthlyPrices.forEach(el => el.style.display = 'none');
+        yearlyPrices.forEach(el => el.style.display = 'inline');
+        yearlySavings.forEach(el => el.style.display = 'block');
+      } else {
+        toggle.classList.remove('yearly');
+        monthlyLabel.classList.add('active');
+        yearlyLabel.classList.remove('active');
+        monthlyPrices.forEach(el => el.style.display = 'inline');
+        yearlyPrices.forEach(el => el.style.display = 'none');
+        yearlySavings.forEach(el => el.style.display = 'none');
+      }
+    }
+
+    async function subscribeToPlan(planName) {
+      try {
+        const button = event.target;
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+        const response = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-csrf-token': '<%= csrfToken %>'
+          },
+          body: JSON.stringify({
+            plan: planName,
+            billing: isYearly ? 'yearly' : 'monthly'
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.checkoutUrl) {
+          window.location.href = data.checkoutUrl;
+        } else {
+          alert(data.message || 'Failed to start subscription. Please try again.');
+          button.disabled = false;
+          button.innerHTML = '<i class="fas fa-arrow-up"></i> Upgrade';
+        }
+      } catch (error) {
+        console.error('Subscription error:', error);
+        alert('An error occurred. Please try again.');
+        button.disabled = false;
+        button.innerHTML = '<i class="fas fa-arrow-up"></i> Upgrade';
+      }
+    }
+
+    async function cancelSubscription() {
+      if (!confirm('Are you sure you want to cancel your subscription? You will be downgraded to the Creator plan at the end of your current billing period.')) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/subscription/cancel', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-csrf-token': '<%= csrfToken %>'
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alert('Your subscription has been cancelled. You will retain access until the end of your billing period.');
+          window.location.reload();
+        } else {
+          alert(data.message || 'Failed to cancel subscription. Please try again.');
+        }
+      } catch (error) {
+        console.error('Cancellation error:', error);
+        alert('An error occurred. Please try again.');
+      }
+    }
+  </script>
+</body>
+</html>

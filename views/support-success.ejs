@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thank You! - MELORI MUSIC</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .success-container {
+      min-height: 60vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    
+    .success-card {
+      background: var(--card-background);
+      border-radius: 16px;
+      padding: 50px 40px;
+      max-width: 500px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 25px;
+    }
+    
+    .success-icon i {
+      font-size: 40px;
+      color: white;
+    }
+    
+    .success-card h1 {
+      font-size: 2rem;
+      margin-bottom: 15px;
+      color: var(--text-color);
+    }
+    
+    .success-card .amount {
+      font-size: 2.5rem;
+      color: var(--primary-color);
+      font-weight: 700;
+      margin: 20px 0;
+    }
+    
+    .success-card p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      line-height: 1.7;
+      margin-bottom: 30px;
+    }
+    
+    .success-btn {
+      display: inline-block;
+      padding: 14px 30px;
+      background-color: var(--primary-color);
+      color: white;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      min-height: 48px;
+      transition: all 0.3s ease;
+    }
+    
+    .success-btn:hover {
+      background-color: #cc4400;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/header') %>
+  
+  <div class="success-container">
+    <div class="success-card">
+      <div class="success-icon">
+        <i class="fas fa-check"></i>
+      </div>
+      <h1>Thank You!</h1>
+      <div class="amount">$<%= amount %></div>
+      <p>Your generous support means the world to us. Together, we're fueling the next chapter of music creation. You'll receive a confirmation email shortly.</p>
+      <a href="/music" class="success-btn" data-testid="link-browse-music">Browse Music</a>
+    </div>
+  </div>
+  
+  <%- include('partials/footer-simple') %>
+</body>
+</html>

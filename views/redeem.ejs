@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redeem Promo Code - MELORI MUSIC</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .redeem-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    .redeem-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .redeem-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+    .redeem-header p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    .redeem-form {
+      background: var(--card-background);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 2rem;
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--text-color);
+    }
+    .form-group label .required {
+      color: var(--primary-color);
+    }
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      background: var(--background-color);
+      color: var(--text-color);
+      font-size: 1rem;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(255, 85, 0, 0.1);
+    }
+    .form-group input.code-input {
+      text-transform: uppercase;
+      letter-spacing: 0.25rem;
+      font-size: 1.25rem;
+      text-align: center;
+      font-family: monospace;
+    }
+    .submit-btn {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1.1rem;
+    }
+    .success-message {
+      background: rgba(46, 204, 113, 0.1);
+      border: 1px solid rgba(46, 204, 113, 0.3);
+      color: #2ecc71;
+      padding: 1.5rem;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .success-message i {
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+    .error-message {
+      background: rgba(231, 76, 60, 0.1);
+      border: 1px solid rgba(231, 76, 60, 0.3);
+      color: #e74c3c;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .info-box {
+      background: rgba(255, 85, 0, 0.1);
+      border: 1px solid rgba(255, 85, 0, 0.2);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+    .info-box i {
+      color: var(--primary-color);
+      margin-top: 2px;
+    }
+    .info-box p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+    .download-section {
+      margin-top: 2rem;
+      background: var(--card-background);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 2rem;
+    }
+    .download-section h3 {
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .download-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+    }
+    .download-item:last-child {
+      margin-bottom: 0;
+    }
+    .download-item-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .download-item-info i {
+      color: var(--primary-color);
+    }
+    .download-item .btn {
+      flex-shrink: 0;
+    }
+    .reward-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, var(--primary-color), #ffaa00);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 25px;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/header') %>
+  
+  <main class="container">
+    <div class="redeem-container">
+      <div class="redeem-header">
+        <h1 data-testid="text-redeem-title">
+          <i class="fas fa-gift" style="color: var(--primary-color);"></i>
+          Redeem Promo Code
+        </h1>
+        <p>Enter your promo code to unlock exclusive content and rewards!</p>
+      </div>
+      
+      <% if (typeof success !== 'undefined' && success && typeof redemption !== 'undefined') { %>
+        <div class="success-message" data-testid="text-success">
+          <i class="fas fa-check-circle"></i>
+          <strong>Code Redeemed Successfully!</strong>
+          <p style="margin-top: 0.5rem;">Enjoy your exclusive reward.</p>
+        </div>
+        
+        <div class="download-section">
+          <div class="reward-badge">
+            <i class="fas fa-star"></i>
+            <%= redemption.campaignName || 'Exclusive Reward' %>
+          </div>
+          
+          <h3>
+            <i class="fas fa-download" style="color: var(--primary-color);"></i>
+            Your Downloads
+          </h3>
+          
+          <% if (typeof songs !== 'undefined' && songs.length > 0) { %>
+            <% songs.forEach(song => { 
+              const downloadPath = song.file_path.startsWith('/objects/') 
+                ? song.file_path 
+                : '/uploads/music_files/' + song.file_path;
+            %>
+              <div class="download-item" data-testid="download-item-<%= song.id %>">
+                <div class="download-item-info">
+                  <i class="fas fa-music"></i>
+                  <span><%= song.title %></span>
+                </div>
+                <a href="<%= downloadPath %>" download class="btn btn-primary btn-small" data-track="download" data-testid="button-download-<%= song.id %>">
+                  <i class="fas fa-download"></i> Download
+                </a>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <p style="color: var(--text-secondary); text-align: center; padding: 1rem;">
+              No downloadable files associated with this reward.
+            </p>
+          <% } %>
+          
+          <div style="text-align: center; margin-top: 2rem;">
+            <a href="/music" class="btn btn-secondary" data-track="browse-music">
+              <i class="fas fa-compact-disc"></i> Browse More Music
+            </a>
+          </div>
+        </div>
+      <% } else { %>
+        <% if (typeof error !== 'undefined' && error) { %>
+          <div class="error-message" data-testid="text-error">
+            <i class="fas fa-exclamation-circle"></i> <%= error %>
+          </div>
+        <% } %>
+        
+        <div class="info-box">
+          <i class="fas fa-info-circle"></i>
+          <p>Enter the campaign keyword and your 12-character promo code (e.g., ALB-A7K9M2P4). Your email is required to verify redemption and send download links.</p>
+        </div>
+        
+        <form class="redeem-form" id="redeemForm" data-testid="form-redeem">
+          <div class="form-group">
+            <label for="keyword">Keyword <span class="required">*</span></label>
+            <input type="text" id="keyword" name="keyword" required placeholder="Enter campaign keyword" data-testid="input-keyword">
+          </div>
+          
+          <div class="form-group">
+            <label for="code">Promo Code <span class="required">*</span></label>
+            <input type="text" id="code" name="code" required placeholder="ALB-XXXXXXXX" maxlength="12" minlength="12" class="code-input" data-testid="input-code">
+          </div>
+          
+          <div class="form-group">
+            <label for="email">Email Address <span class="required">*</span></label>
+            <input type="email" id="email" name="email" required placeholder="your@email.com" data-testid="input-email">
+          </div>
+          
+          <div id="formError" class="error-message" style="display: none;"></div>
+          
+          <button type="submit" class="btn btn-primary submit-btn" data-track="redeem-submit" data-testid="button-submit">
+            <i class="fas fa-gift"></i> Redeem Code
+          </button>
+        </form>
+      <% } %>
+    </div>
+  </main>
+  
+  <%- include('partials/footer-simple') %>
+  
+  <script src="/js/main.js"></script>
+  <script>
+    document.getElementById('redeemForm')?.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const keyword = document.getElementById('keyword').value.trim();
+      const code = document.getElementById('code').value.trim().toUpperCase();
+      const email = document.getElementById('email').value.trim();
+      const errorDiv = document.getElementById('formError');
+      const submitBtn = this.querySelector('button[type="submit"]');
+      
+      if (!keyword || !code || !email) {
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Please fill in all fields.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      
+      if (code.length !== 12) {
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Promo code must be exactly 12 characters (e.g., ALB-A7K9M2P4).';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      
+      if (!/^[A-Z]{3}-[A-Z0-9]{8}$/.test(code)) {
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Invalid promo code format. Expected format: XXX-XXXXXXXX';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redeeming...';
+      errorDiv.style.display = 'none';
+      
+      try {
+        const response = await fetch('/api/promo/redeem', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ keyword, code, email })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to redeem code');
+        }
+        
+        window.location.href = '/redeem?success=true&redemptionId=' + data.redemptionId;
+      } catch (error) {
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + error.message;
+        errorDiv.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-gift"></i> Redeem Code';
+      }
+    });
+    
+    document.getElementById('code')?.addEventListener('input', function(e) {
+      let val = this.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+      if (val.length === 3 && !val.includes('-')) {
+        val = val + '-';
+      }
+      this.value = val;
+    });
+  </script>
+</body>
+</html>

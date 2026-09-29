@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About - MELORI MUSIC</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .about-hero {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: linear-gradient(135deg, rgba(255, 85, 0, 0.1) 0%, rgba(0, 0, 0, 0) 100%);
+      border-radius: 12px;
+      margin-bottom: 3rem;
+    }
+    .about-hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    .about-hero .vision-text {
+      max-width: 800px;
+      margin: 0 auto;
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      line-height: 1.8;
+    }
+    .about-section {
+      margin-bottom: 4rem;
+    }
+    .about-section h2 {
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .about-section h2 i {
+      font-size: 1.5rem;
+    }
+    .problem-list, .values-list {
+      list-style: none;
+      padding: 0;
+    }
+    .problem-list li, .values-list li {
+      padding: 0.75rem 0;
+      padding-left: 2rem;
+      position: relative;
+      color: var(--text-secondary);
+    }
+    .problem-list li::before {
+      content: "\f00d";
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      position: absolute;
+      left: 0;
+      color: #e74c3c;
+    }
+    .values-list li::before {
+      content: "\f00c";
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+    }
+    .solution-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+    .solution-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 2rem;
+    }
+    .solution-card h3 {
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .solution-card h3 .emoji-icon {
+      font-size: 1.5rem;
+    }
+    .solution-card ul {
+      list-style: none;
+      padding: 0;
+    }
+    .solution-card ul li {
+      padding: 0.5rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+      color: var(--text-secondary);
+    }
+    .solution-card ul li::before {
+      content: "\f00c";
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      position: absolute;
+      left: 0;
+      font-size: 0.75rem;
+      color: var(--primary);
+    }
+    .differentiator-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    .diff-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .diff-card h4 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .diff-card p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+    .audience-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .audience-tag {
+      background: var(--primary);
+      color: white;
+      padding: 0.75rem 1.25rem;
+      border-radius: 50px;
+      font-size: 0.9rem;
+    }
+    .promise-box {
+      background: linear-gradient(135deg, var(--primary) 0%, #cc4400 100%);
+      color: white;
+      padding: 3rem;
+      border-radius: 12px;
+      text-align: center;
+      margin-top: 3rem;
+    }
+    .promise-box h2 {
+      color: white;
+      margin-bottom: 1rem;
+    }
+    .promise-box p {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .tech-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .tech-feature {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+    }
+    .tech-feature i {
+      color: var(--primary);
+      font-size: 1.2rem;
+    }
+    .tech-feature span {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/header') %>
+  
+  <main class="container" style="padding: 2rem 1rem; max-width: 1000px; margin: 0 auto;">
+    <section class="about-hero">
+      <h1 data-testid="text-about-title">
+        <img src="/images/melori-logo.png" alt="Melori Logo" style="height: 80px; width: auto; vertical-align: middle; margin-right: 0.5rem;">
+        About Melori
+      </h1>
+      <p class="vision-text" data-testid="text-about-vision">
+        Melori was born from a simple truth: artists deserve better. While traditional platforms take significant cuts and treat musicians as content providers, we believe creators should own their journey. Our name combines "Melody" and "Lore"—representing both the music and the story behind it. We're not just a platform; we're a partner in artistic independence.
+      </p>
+    </section>
+
+    <section class="about-section">
+      <h2><i class="fas fa-exclamation-triangle"></i> The Problem We Solve</h2>
+      <ul class="problem-list" data-testid="list-problems">
+        <li><strong>Revenue Drain:</strong> Traditional platforms take 20-50% of artists' earnings</li>
+        <li><strong>Fragmented Tools:</strong> Musicians juggle multiple services for distribution, sales, and analytics</li>
+        <li><strong>Fan Disconnect:</strong> Layers between artists and their audience dilute relationships</li>
+        <li><strong>Complexity Barrier:</strong> Technical hurdles prevent many artists from building their own platforms</li>
+      </ul>
+    </section>
+
+    <section class="about-section">
+      <h2><i class="fas fa-lightbulb"></i> Our Solution</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 1rem;">Melori delivers a comprehensive suite of services in three integrated layers:</p>
+      
+      <div class="solution-grid" data-testid="grid-solutions">
+        <div class="solution-card">
+          <h3><span class="emoji-icon"><i class="fas fa-music" style="color: var(--primary);"></i></span> Core Streaming Layer</h3>
+          <ul>
+            <li>High-quality audio streaming (up to lossless)</li>
+            <li>Customizable artist profiles with portfolio display</li>
+            <li>Intelligent recommendation engine</li>
+            <li>Social features for fan interaction</li>
+          </ul>
+        </div>
+        
+        <div class="solution-card">
+          <h3><span class="emoji-icon"><i class="fas fa-shopping-cart" style="color: var(--primary);"></i></span> Direct Commerce Layer</h3>
+          <ul>
+            <li>Album and single sales with 0% platform commission</li>
+            <li>Merchandise integration</li>
+            <li>Fan club/subscription management</li>
+            <li>Digital download delivery with automated emails</li>
+            <li>Bulk purchase discounts and promotional tools</li>
+          </ul>
+        </div>
+        
+        <div class="solution-card">
+          <h3><span class="emoji-icon"><i class="fas fa-chart-line" style="color: var(--primary);"></i></span> Professional Services Layer</h3>
+          <ul>
+            <li>Advanced analytics dashboard</li>
+            <li>Marketing toolkit (email campaigns, social integration)</li>
+            <li>Copyright and distribution protection</li>
+            <li>Collaborative tools for labels and managers</li>
+            <li>API access for custom integrations</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="about-section">
+      <h2><i class="fas fa-star"></i> Key Differentiators</h2>
+      <div class="differentiator-grid" data-testid="grid-differentiators">
+        <div class="diff-card">
+          <h4><i class="fas fa-coins" style="color: var(--primary);"></i> 100% Earnings Retention</h4>
+          <p>Unlike SoundCloud, Spotify, or DistroKid, we never take a percentage of your sales. You set the price, you keep the profits.</p>
+        </div>
+        <div class="diff-card">
+          <h4><i class="fas fa-palette" style="color: var(--primary);"></i> Artist-Centric Design</h4>
+          <p>Every feature is built with the working musician in mind—from the intuitive upload interface to the detailed analytics that actually help you grow.</p>
+        </div>
+        <div class="diff-card">
+          <h4><i class="fas fa-link" style="color: var(--primary);"></i> Direct Fan Relationships</h4>
+          <p>Built-in email capture, messaging tools, and exclusive content features help you build and nurture your fanbase without algorithmic interference.</p>
+        </div>
+        <div class="diff-card">
+          <h4><i class="fas fa-globe" style="color: var(--primary);"></i> All-in-One Ecosystem</h4>
+          <p>No more switching between ten different apps. Upload once, and your music is ready for streaming, purchase, and promotion.</p>
+        </div>
+        <div class="diff-card">
+          <h4><i class="fas fa-robot" style="color: var(--primary);"></i> Smart Technology</h4>
+          <p>AI-powered search and recommendation helps fans discover your music based on actual musical attributes, not just popularity metrics.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="about-section">
+      <h2><i class="fas fa-users"></i> Target Audience</h2>
+      <div class="audience-tags" data-testid="list-audience">
+        <span class="audience-tag">Independent musicians tired of platform exploitation</span>
+        <span class="audience-tag">Emerging artists seeking professional tools</span>
+        <span class="audience-tag">Established acts wanting distribution control</span>
+        <span class="audience-tag">Music labels looking for transparency</span>
+        <span class="audience-tag">Fans who want to support artists directly</span>
+      </div>
+    </section>
+
+    <section class="about-section">
+      <h2><i class="fas fa-heart"></i> Our Values</h2>
+      <ul class="values-list" data-testid="list-values">
+        <li><strong>Transparency:</strong> No hidden fees, no surprise deductions</li>
+        <li><strong>Empowerment:</strong> Tools that make artists more self-sufficient</li>
+        <li><strong>Quality:</strong> Professional-grade streaming and presentation</li>
+        <li><strong>Community:</strong> Fostering real connections between artists and listeners</li>
+        <li><strong>Innovation:</strong> Continuously evolving to serve creators better</li>
+      </ul>
+    </section>
+
+    <section class="about-section">
+      <h2><i class="fas fa-server"></i> Technical Excellence</h2>
+      <div class="tech-features" data-testid="grid-tech">
+        <div class="tech-feature">
+          <i class="fas fa-shield-alt"></i>
+          <span>Secure, scalable architecture</span>
+        </div>
+        <div class="tech-feature">
+          <i class="fas fa-check-circle"></i>
+          <span>99.9% uptime guarantee</span>
+        </div>
+        <div class="tech-feature">
+          <i class="fas fa-globe-americas"></i>
+          <span>Global CDN for fast streaming</span>
+        </div>
+        <div class="tech-feature">
+          <i class="fas fa-lock"></i>
+          <span>Bank-level security</span>
+        </div>
+        <div class="tech-feature">
+          <i class="fas fa-mobile-alt"></i>
+          <span>Mobile-responsive design</span>
+        </div>
+        <div class="tech-feature">
+          <i class="fas fa-sync"></i>
+          <span>Regular feature updates</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="promise-box" data-testid="section-promise">
+      <h2><i class="fas fa-handshake"></i> The Melori Promise</h2>
+      <p>We succeed only when our artists succeed. Our business model relies on optional premium features—not taking cuts from your hard work. We're building the platform we wished existed when we were musicians.</p>
+    </div>
+  </main>
+  
+  <%- include('partials/footer') %>
+</body>
+</html>

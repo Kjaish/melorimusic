@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Albums - MELORI MUSIC</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<%- include('../partials/header', { user: user }) %>
+
+<style>
+  .albums-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem 0;
+  }
+  
+  .album-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: grab;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    border: 2px solid transparent;
+  }
+  
+  .album-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+  
+  .album-card.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+    transform: scale(1.02);
+    box-shadow: 0 12px 32px rgba(255, 85, 0, 0.3);
+    border-color: var(--accent);
+  }
+  
+  .album-card.drag-over {
+    border-color: var(--accent);
+    background: rgba(255, 85, 0, 0.1);
+  }
+  
+  .drop-placeholder {
+    background: rgba(255, 85, 0, 0.15);
+    border: 2px dashed var(--accent);
+    border-radius: 12px;
+    min-height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  
+  .drop-placeholder i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .album-card-image {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+  }
+  
+  .album-card-content {
+    padding: 1rem;
+  }
+  
+  .album-card-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .album-card-meta {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .album-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  
+  .album-card-actions .btn {
+    flex: 1;
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+  
+  .drag-handle {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    padding: 0.5rem;
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 10;
+  }
+  
+  .album-card:hover .drag-handle {
+    opacity: 1;
+  }
+  
+  .order-badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background: var(--accent);
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.85rem;
+    z-index: 10;
+  }
+  
+  .save-order-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--accent);
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    z-index: 1000;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+  }
+  
+  .save-order-bar.visible {
+    transform: translateY(0);
+  }
+  
+  .save-order-bar button {
+    background: white;
+    color: var(--accent);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  
+  .save-order-bar button:hover {
+    opacity: 0.9;
+  }
+  
+  .save-order-bar button.cancel {
+    background: transparent;
+    color: white;
+    border: 1px solid white;
+  }
+  
+  .view-toggle {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: 1rem;
+  }
+  
+  .view-toggle button {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .view-toggle button.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+  
+  .table-view {
+    display: none;
+  }
+  
+  .grid-view.hidden, .table-view.hidden, .compact-view.hidden {
+    display: none;
+  }
+  
+  .table-view:not(.hidden) {
+    display: block;
+  }
+  
+  .compact-view:not(.hidden) {
+    display: grid;
+  }
+  
+  /* Compact grid view - smaller cards */
+  .compact-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+    padding: 1rem 0;
+  }
+  
+  .compact-card {
+    background: var(--card-bg);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .compact-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  
+  .compact-card-image {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+  }
+  
+  .compact-card-content {
+    padding: 0.5rem;
+  }
+  
+  .compact-card-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .compact-card-price {
+    font-size: 0.7rem;
+    color: var(--accent);
+    margin-top: 0.25rem;
+  }
+</style>
+
+<main class="container" style="padding: 1.5rem 1rem; padding-bottom: 100px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <h1>Manage Albums</h1>
+      <div class="view-toggle">
+        <button type="button" class="active" data-view="grid" data-testid="button-view-grid" title="Normal grid">
+          <i class="fas fa-th-large"></i>
+        </button>
+        <button type="button" data-view="compact" data-testid="button-view-compact" title="Compact grid">
+          <i class="fas fa-th"></i>
+        </button>
+        <button type="button" data-view="table" data-testid="button-view-table" title="List view">
+          <i class="fas fa-list"></i>
+        </button>
+      </div>
+    </div>
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <button type="button" class="btn btn-secondary" id="analyzeAllBtn" data-testid="button-analyze-all">
+        <i class="fas fa-waveform-lines"></i> Analyze All Songs
+      </button>
+      <a href="/admin/albums/new" class="btn btn-primary" data-testid="button-add-album">
+        <i class="fas fa-plus"></i> Add New Album
+      </a>
+    </div>
+  </div>
+  
+  <% if (albums && albums.length > 0) { %>
+    <p style="color: var(--text-muted); margin-bottom: 1rem;">
+      <i class="fas fa-info-circle"></i> Drag and drop albums to reorder them. Changes will be saved automatically.
+    </p>
+    
+    <!-- Grid View -->
+    <div class="albums-grid grid-view" id="albumsGrid" data-testid="albums-grid">
+      <% albums.forEach((album, index) => { %>
+        <div class="album-card" draggable="true" data-album-id="<%= album.id %>" data-testid="album-card-<%= album.id %>">
+          <span class="order-badge"><%= index + 1 %></span>
+          <span class="drag-handle"><i class="fas fa-grip-vertical"></i></span>
+          <img src="/uploads/album_art/<%= album.album_art %>" alt="<%= album.title %>" class="album-card-image" onerror="this.src='/uploads/album_art/default.jpg'">
+          <div class="album-card-content">
+            <div class="album-card-title"><%= album.title %></div>
+            <div class="album-card-meta">
+              <span>$<%= parseFloat(album.price).toFixed(2) %></span>
+              <span><%= album.song_count || 0 %> songs</span>
+            </div>
+            <div class="album-card-actions">
+              <a href="/admin/albums/edit/<%= album.id %>" class="btn btn-small btn-secondary" data-testid="button-edit-<%= album.id %>">
+                <i class="fas fa-edit"></i> Edit
+              </a>
+              <form action="/admin/albums/delete/<%= album.id %>" method="POST" style="flex: 1;" class="delete-form">
+                <button type="submit" class="btn btn-small btn-danger" style="width: 100%;" data-testid="button-delete-<%= album.id %>">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+    
+    <!-- Table View (List - no images) -->
+    <div class="table-view hidden">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Price</th>
+            <th>Songs</th>
+            <th>Release Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% albums.forEach((album, index) => { %>
+            <tr data-testid="row-album-<%= album.id %>">
+              <td><%= index + 1 %></td>
+              <td><%= album.title %></td>
+              <td>$<%= parseFloat(album.price).toFixed(2) %></td>
+              <td><%= album.song_count || 0 %></td>
+              <td><%= album.release_date ? new Date(album.release_date).toLocaleDateString() : 'N/A' %></td>
+              <td>
+                <a href="/admin/albums/edit/<%= album.id %>" class="btn btn-small btn-secondary" data-testid="button-edit-table-<%= album.id %>">
+                  <i class="fas fa-edit"></i> Edit
+                </a>
+                <form action="/admin/albums/delete/<%= album.id %>" method="POST" style="display: inline;" class="delete-form">
+                  <button type="submit" class="btn btn-small btn-danger" data-testid="button-delete-table-<%= album.id %>">
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Compact View (Small images) -->
+    <div class="compact-view hidden" data-testid="albums-compact">
+      <% albums.forEach((album) => { %>
+        <a href="/admin/albums/edit/<%= album.id %>" class="compact-card" data-testid="compact-album-<%= album.id %>">
+          <img src="/uploads/album_art/<%= album.album_art %>" alt="<%= album.title %>" class="compact-card-image" onerror="this.src='/uploads/album_art/default.jpg'">
+          <div class="compact-card-content">
+            <div class="compact-card-title"><%= album.title %></div>
+            <div class="compact-card-price">$<%= parseFloat(album.price).toFixed(2) %></div>
+          </div>
+        </a>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="empty-state">
+      <i class="fas fa-compact-disc" style="font-size: 4rem; color: #666; margin-bottom: 1rem; display: block;"></i>
+      <h2>No Albums Yet</h2>
+      <p>Start by adding your first album.</p>
+      <a href="/admin/albums/new" class="btn btn-primary" style="margin-top: 1rem;">
+        <i class="fas fa-plus"></i> Add Album
+      </a>
+    </div>
+  <% } %>
+</main>
+
+<!-- Save Order Bar -->
+<div class="save-order-bar" id="saveOrderBar">
+  <span><i class="fas fa-arrows-alt"></i> Album order changed</span>
+  <div style="display: flex; gap: 1rem;">
+    <button type="button" class="cancel" id="cancelOrder" data-testid="button-cancel-order">Cancel</button>
+    <button type="button" id="saveOrder" data-testid="button-save-order"><i class="fas fa-save"></i> Save Order</button>
+  </div>
+</div>
+
+<%- include('../partials/footer-simple') %>
+
+<script src="/js/main.js"></script>
+<script>
+  (function() {
+    const grid = document.getElementById('albumsGrid');
+    const saveOrderBar = document.getElementById('saveOrderBar');
+    const saveOrderBtn = document.getElementById('saveOrder');
+    const cancelOrderBtn = document.getElementById('cancelOrder');
+    const viewToggleBtns = document.querySelectorAll('.view-toggle button');
+    const gridView = document.querySelector('.grid-view');
+    const tableView = document.querySelector('.table-view');
+    const compactView = document.querySelector('.compact-view');
+    
+    let draggedElement = null;
+    let placeholder = null;
+    let originalOrder = [];
+    let hasOrderChanged = false;
+    
+    // Store original order
+    if (grid) {
+      originalOrder = Array.from(grid.querySelectorAll('.album-card')).map(card => card.dataset.albumId);
+    }
+    
+    // View toggle
+    viewToggleBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        const view = this.dataset.view;
+        viewToggleBtns.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Hide all views first
+        if (gridView) gridView.classList.add('hidden');
+        if (tableView) tableView.classList.add('hidden');
+        if (compactView) compactView.classList.add('hidden');
+        
+        // Show selected view
+        if (view === 'grid' && gridView) {
+          gridView.classList.remove('hidden');
+        } else if (view === 'table' && tableView) {
+          tableView.classList.remove('hidden');
+        } else if (view === 'compact' && compactView) {
+          compactView.classList.remove('hidden');
+        }
+      });
+    });
+    
+    // Delete confirmation
+    document.querySelectorAll('.delete-form').forEach(form => {
+      form.addEventListener('submit', function(e) {
+        if (!confirm('Are you sure you want to delete this album?')) {
+          e.preventDefault();
+        }
+      });
+    });
+    
+    if (!grid) return;
+    
+    // Create placeholder element
+    function createPlaceholder() {
+      const ph = document.createElement('div');
+      ph.className = 'drop-placeholder';
+      ph.innerHTML = '<div style="text-align: center;"><i class="fas fa-arrow-down"></i><br>Drop here</div>';
+      return ph;
+    }
+    
+    // Update order badges
+    function updateOrderBadges() {
+      const cards = grid.querySelectorAll('.album-card');
+      cards.forEach((card, index) => {
+        const badge = card.querySelector('.order-badge');
+        if (badge) badge.textContent = index + 1;
+      });
+    }
+    
+    // Check if order changed
+    function checkOrderChanged() {
+      const currentOrder = Array.from(grid.querySelectorAll('.album-card')).map(card => card.dataset.albumId);
+      hasOrderChanged = JSON.stringify(currentOrder) !== JSON.stringify(originalOrder);
+      
+      if (hasOrderChanged) {
+        saveOrderBar.classList.add('visible');
+      } else {
+        saveOrderBar.classList.remove('visible');
+      }
+    }
+    
+    // Drag start
+    grid.addEventListener('dragstart', function(e) {
+      if (!e.target.classList.contains('album-card')) return;
+      
+      draggedElement = e.target;
+      draggedElement.classList.add('dragging');
+      
+      // Create placeholder
+      placeholder = createPlaceholder();
+      
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', e.target.dataset.albumId);
+      
+      // Delay adding placeholder to avoid visual glitch
+      setTimeout(() => {
+        if (draggedElement && draggedElement.parentNode) {
+          draggedElement.parentNode.insertBefore(placeholder, draggedElement.nextSibling);
+        }
+      }, 0);
+    });
+    
+    // Drag over
+    grid.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      
+      const afterElement = getDragAfterElement(grid, e.clientY, e.clientX);
+      
+      if (placeholder && placeholder.parentNode) {
+        if (afterElement == null) {
+          grid.appendChild(placeholder);
+        } else if (afterElement !== placeholder && afterElement !== draggedElement) {
+          grid.insertBefore(placeholder, afterElement);
+        }
+      }
+    });
+    
+    // Drag enter on cards
+    grid.addEventListener('dragenter', function(e) {
+      if (e.target.classList.contains('album-card') && e.target !== draggedElement) {
+        e.target.classList.add('drag-over');
+      }
+    });
+    
+    // Drag leave on cards
+    grid.addEventListener('dragleave', function(e) {
+      if (e.target.classList.contains('album-card')) {
+        e.target.classList.remove('drag-over');
+      }
+    });
+    
+    // Drop
+    grid.addEventListener('drop', function(e) {
+      e.preventDefault();
+      
+      if (placeholder && draggedElement) {
+        placeholder.parentNode.insertBefore(draggedElement, placeholder);
+        placeholder.remove();
+      }
+      
+      // Remove all drag-over classes
+      grid.querySelectorAll('.album-card').forEach(card => {
+        card.classList.remove('drag-over');
+      });
+      
+      updateOrderBadges();
+      checkOrderChanged();
+    });
+    
+    // Drag end
+    grid.addEventListener('dragend', function(e) {
+      if (draggedElement) {
+        draggedElement.classList.remove('dragging');
+      }
+      
+      if (placeholder && placeholder.parentNode) {
+        placeholder.remove();
+      }
+      
+      // Remove all drag-over classes
+      grid.querySelectorAll('.album-card').forEach(card => {
+        card.classList.remove('drag-over');
+      });
+      
+      draggedElement = null;
+      placeholder = null;
+    });
+    
+    // Get element after cursor position
+    function getDragAfterElement(container, y, x) {
+      const draggableElements = [...container.querySelectorAll('.album-card:not(.dragging)')];
+      
+      return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offsetY = y - box.top - box.height / 2;
+        const offsetX = x - box.left - box.width / 2;
+        
+        // Calculate distance from center
+        const distance = Math.sqrt(offsetY * offsetY + offsetX * offsetX);
+        
+        if (offsetY < 0 && distance < (closest.distance || Infinity)) {
+          return { distance: distance, element: child };
+        } else {
+          return closest;
+        }
+      }, {}).element;
+    }
+    
+    // Save order
+    saveOrderBtn.addEventListener('click', async function() {
+      const cards = grid.querySelectorAll('.album-card');
+      const albumOrders = Array.from(cards).map((card, index) => ({
+        id: parseInt(card.dataset.albumId),
+        order: index
+      }));
+      
+      try {
+        saveOrderBtn.disabled = true;
+        saveOrderBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        
+        const response = await fetch('/api/admin/albums/reorder', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ albumOrders })
+        });
+        
+        if (response.ok) {
+          originalOrder = Array.from(cards).map(card => card.dataset.albumId);
+          hasOrderChanged = false;
+          saveOrderBar.classList.remove('visible');
+          
+          // Show success message briefly
+          saveOrderBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+          setTimeout(() => {
+            saveOrderBtn.innerHTML = '<i class="fas fa-save"></i> Save Order';
+            saveOrderBtn.disabled = false;
+          }, 1500);
+        } else {
+          throw new Error('Failed to save order');
+        }
+      } catch (error) {
+        console.error('Error saving order:', error);
+        alert('Failed to save album order. Please try again.');
+        saveOrderBtn.innerHTML = '<i class="fas fa-save"></i> Save Order';
+        saveOrderBtn.disabled = false;
+      }
+    });
+    
+    // Cancel order change
+    cancelOrderBtn.addEventListener('click', function() {
+      // Restore original order
+      const cards = Array.from(grid.querySelectorAll('.album-card'));
+      
+      originalOrder.forEach(id => {
+        const card = cards.find(c => c.dataset.albumId === id);
+        if (card) grid.appendChild(card);
+      });
+      
+      updateOrderBadges();
+      hasOrderChanged = false;
+      saveOrderBar.classList.remove('visible');
+    });
+  })();
+  
+  // Analyze All Songs functionality
+  const analyzeAllBtn = document.getElementById('analyzeAllBtn');
+  if (analyzeAllBtn) {
+    analyzeAllBtn.addEventListener('click', async function() {
+      if (!confirm('This will analyze all songs to detect duration and tempo. This may take a while. Continue?')) {
+        return;
+      }
+      
+      const originalText = analyzeAllBtn.innerHTML;
+      analyzeAllBtn.disabled = true;
+      analyzeAllBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+      
+      try {
+        const response = await fetch('/api/admin/songs/analyze-all', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          alert(`Analysis complete!\n\nSuccessfully analyzed: ${result.analyzed} songs\nFailed: ${result.failed} songs`);
+        } else {
+          alert('Analysis failed: ' + (result.error || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Analysis error:', error);
+        alert('Failed to analyze songs. Please try again.');
+      } finally {
+        analyzeAllBtn.disabled = false;
+        analyzeAllBtn.innerHTML = originalText;
+      }
+    });
+  }
+</script>
+</body>
+</html>

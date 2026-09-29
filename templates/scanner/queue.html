@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Song Queue</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Song Queue</h1>
+        
+        <div class="controls">
+            <label>Sort by:</label>
+            <select onchange="location.href='/queue?sort=' + this.value">
+                <option value="upload_time" {% if sort_by == 'upload_time' %}selected{% endif %}>Upload Time</option>
+                <option value="tempo" {% if sort_by == 'tempo' %}selected{% endif %}>Tempo (BPM)</option>
+                <option value="duration" {% if sort_by == 'duration' %}selected{% endif %}>Duration</option>
+                <option value="genre" {% if sort_by == 'genre' %}selected{% endif %}>Genre</option>
+                <option value="energy" {% if sort_by == 'energy' %}selected{% endif %}>Energy</option>
+            </select>
+            <a href="/" class="btn">Upload More</a>
+        </div>
+        
+        <div class="song-grid">
+            {% for song in songs %}
+            <div class="song-card">
+                <div class="song-header">
+                    <h3>{{ song[3] }}</h3>
+                    <p class="artist">{{ song[4] }}</p>
+                </div>
+                <div class="song-details">
+                    <div class="detail">
+                        <span class="label">Duration:</span>
+                        <span class="value">{{ "%.1f"|format(song[5]) }}s</span>
+                    </div>
+                    <div class="detail">
+                        <span class="label">Tempo:</span>
+                        <span class="value">{{ song[6] }} BPM</span>
+                    </div>
+                    <div class="detail">
+                        <span class="label">Genre:</span>
+                        <span class="value genre-tag">{{ song[7] }}</span>
+                    </div>
+                    <div class="detail">
+                        <span class="label">Style:</span>
+                        <span class="value">{{ song[8] }}</span>
+                    </div>
+                    <div class="detail">
+                        <span class="label">Energy:</span>
+                        <span class="value energy-{{ song[9]|lower }}">{{ song[9] }}</span>
+                    </div>
+                </div>
+                <div class="song-footer">
+                    <small>Uploaded: {{ song[10] }}</small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if not songs %}
+        <p class="no-songs">No songs in queue yet. <a href="/">Upload some!</a></p>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Download Your Music - MELORI MUSIC</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('partials/header', { user: null, searchQuery: '' }) %>
+  
+  <main class="container">
+    <div style="max-width: 600px; margin: 4rem auto; text-align: center;">
+      <div style="background: var(--card-background); padding: 3rem; border-radius: 15px;">
+        <h1 style="color: var(--success-color); margin-bottom: 1rem;">Thank You!</h1>
+        <p style="margin-bottom: 2rem;">Your purchase is ready for download.</p>
+        
+        <div style="background: rgba(255, 85, 0, 0.1); padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem;">
+          <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Transaction ID</p>
+          <p style="font-size: 1.2rem; font-weight: bold;"><%= sale.id %></p>
+        </div>
+        
+        <h3 style="margin-bottom: 1rem;">Your Files:</h3>
+        <div class="song-list" style="text-align: left;">
+          <% songs.forEach((song, index) => { 
+            // Handle both Object Storage paths (start with /objects/) and legacy paths
+            const downloadPath = song.file_path.startsWith('/objects/') 
+              ? song.file_path 
+              : '/uploads/music_files/' + song.file_path;
+          %>
+            <div class="song-item" style="grid-template-columns: 1fr auto;">
+              <div class="song-info">
+                <h4><%= song.title %></h4>
+              </div>
+              <a href="<%= downloadPath %>" download class="btn btn-small btn-primary">
+                Download
+              </a>
+            </div>
+          <% }) %>
+        </div>
+        
+        <p style="margin-top: 2rem; color: var(--text-secondary);">
+          A copy of this download link has been sent to your email.
+        </p>
+        
+        <a href="/" class="btn btn-secondary" style="margin-top: 2rem;">Browse More Music</a>
+      </div>
+    </div>
+  </main>
+  
+  <%- include('partials/footer-simple') %>
+</body>
+</html>

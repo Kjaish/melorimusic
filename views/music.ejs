@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music - MELORI MUSIC</title>
+  <meta name="description" content="Browse the complete music catalog - albums and singles from MELORI MUSIC">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <%- include('partials/header') %>
+  
+  <main class="container" style="padding-top: 2rem; padding-bottom: 6rem;">
+    <div class="page-header" style="margin-bottom: 3rem;">
+      <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">
+        <i class="fas fa-music" style="color: var(--primary-color);"></i> Music Catalog
+      </h1>
+      <p style="color: var(--text-secondary);">Browse all albums and singles</p>
+    </div>
+
+    <section id="albums-section" style="margin-bottom: 4rem;">
+      <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+          <h2 style="font-size: 1.8rem; display: flex; align-items: center; gap: 0.75rem; margin: 0;">
+            <i class="fas fa-compact-disc" style="color: var(--primary-color);"></i>
+            Latest Albums
+          </h2>
+          <span class="badge" style="background: var(--primary-color); color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem;">
+            <%= albums.length %> Album<%= albums.length !== 1 ? 's' : '' %>
+          </span>
+          <% if (user) { %>
+            <a href="/admin/albums/new" class="btn btn-primary btn-small" data-testid="button-upload-album" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+              <i class="fas fa-upload"></i> Upload
+            </a>
+          <% } %>
+        </div>
+        <div class="view-toggle" data-section="albums" style="display: flex; gap: 0.5rem;">
+          <button class="view-btn active" data-view="grid" data-testid="button-albums-view-grid" title="Grid View">
+            <i class="fas fa-th-large"></i>
+          </button>
+          <button class="view-btn" data-view="compact" data-testid="button-albums-view-compact" title="Compact View">
+            <i class="fas fa-th"></i>
+          </button>
+          <button class="view-btn" data-view="table" data-testid="button-albums-view-table" title="List View">
+            <i class="fas fa-list"></i>
+          </button>
+        </div>
+      </div>
+      
+      <% if (albums && albums.length > 0) { %>
+        <!-- Grid View -->
+        <div class="album-grid view-grid">
+          <% albums.forEach(album => { %>
+            <div class="album-card" data-album-id="<%= album.id %>" data-testid="card-album-<%= album.id %>">
+              <div class="album-art-container">
+                <% if (album.album_art) { %>
+                  <img src="/uploads/album_art/<%= album.album_art %>" alt="<%= album.title %>" class="album-art" onerror="this.src='/uploads/album_art/default.jpg'">
+                <% } else if (album.cover_art) { %>
+                  <img src="/uploads/album_art/<%= album.cover_art %>" alt="<%= album.title %>" class="album-art" onerror="this.src='/uploads/album_art/default.jpg'">
+                <% } else { %>
+                  <div class="album-art-placeholder">
+                    <i class="fas fa-compact-disc"></i>
+                  </div>
+                <% } %>
+                <button class="play-btn" data-testid="button-play-album-<%= album.id %>">
+                  <i class="fas fa-play"></i>
+                </button>
+                <% if (isAdmin) { %>
+                  <a href="/admin/albums/edit/<%= album.id %>" class="admin-edit-overlay" data-testid="button-edit-album-<%= album.id %>">
+                    <i class="fas fa-edit"></i> Edit
+                  </a>
+                <% } %>
+              </div>
+              <div class="album-info" style="text-align: center;">
+                <h3 class="album-title"><%= album.title %></h3>
+                <p class="album-description"><%= album.description %></p>
+                <div class="album-meta" style="justify-content: center;">
+                  <a href="/album/<%= album.id %>" class="btn btn-primary btn-small" data-testid="button-view-album-<%= album.id %>">
+                    <i class="fas fa-eye"></i> View
+                  </a>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+        
+        <!-- Table/List View -->
+        <div class="albums-table view-table" style="display: none;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Price</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% albums.forEach(album => { %>
+                <tr data-testid="row-album-<%= album.id %>">
+                  <td><%= album.title %></td>
+                  <td>$<%= parseFloat(album.price).toFixed(2) %></td>
+                  <td>
+                    <a href="/album/<%= album.id %>" class="btn btn-primary btn-small" data-testid="button-view-album-list-<%= album.id %>">
+                      <i class="fas fa-eye"></i> View
+                    </a>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div class="empty-state" style="text-align: center; padding: 3rem; background: var(--card-background); border-radius: 12px;">
+          <i class="fas fa-compact-disc" style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 1rem;"></i>
+          <p style="color: var(--text-secondary);">No albums available yet</p>
+        </div>
+      <% } %>
+    </section>
+
+    <section id="singles-section">
+      <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+          <h2 style="font-size: 1.8rem; display: flex; align-items: center; gap: 0.75rem; margin: 0;">
+            <i class="fas fa-record-vinyl" style="color: var(--primary-color);"></i>
+            Latest Singles
+          </h2>
+          <span class="badge" style="background: var(--primary-color); color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem;">
+            <%= singles.length %> Single<%= singles.length !== 1 ? 's' : '' %>
+          </span>
+          <% if (user) { %>
+            <a href="/admin/singles/new" class="btn btn-primary btn-small" data-testid="button-upload-single" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+              <i class="fas fa-upload"></i> Upload
+            </a>
+          <% } %>
+        </div>
+        <div class="view-toggle" data-section="singles" style="display: flex; gap: 0.5rem;">
+          <button class="view-btn active" data-view="grid" data-testid="button-singles-view-grid" title="Grid View">
+            <i class="fas fa-th-large"></i>
+          </button>
+          <button class="view-btn" data-view="compact" data-testid="button-singles-view-compact" title="Compact View">
+            <i class="fas fa-th"></i>
+          </button>
+          <button class="view-btn" data-view="table" data-testid="button-singles-view-table" title="List View">
+            <i class="fas fa-list"></i>
+          </button>
+        </div>
+      </div>
+      
+      <% if (singles && singles.length > 0) { %>
+        <!-- Grid View -->
+        <div class="singles-grid view-grid">
+          <% singles.forEach(single => { %>
+            <div class="single-card" data-testid="card-single-<%= single.id %>">
+              <div class="single-art-container">
+                <% if (single.cover_art) { %>
+                  <img src="/uploads/album_art/<%= single.cover_art %>" alt="<%= single.title %>" class="single-art" onerror="this.src='/uploads/album_art/default.jpg'">
+                <% } else { %>
+                  <div class="single-art-placeholder">
+                    <i class="fas fa-music"></i>
+                  </div>
+                <% } %>
+                <button class="play-single-btn" data-file-path="<%= single.file_path %>" data-title="<%= single.title %>" data-testid="button-play-single-<%= single.id %>">
+                  <i class="fas fa-play"></i>
+                </button>
+                <% if (isAdmin) { %>
+                  <a href="/admin/singles/edit/<%= single.id %>" class="admin-edit-overlay" data-testid="button-edit-single-<%= single.id %>">
+                    <i class="fas fa-edit"></i> Edit
+                  </a>
+                <% } %>
+              </div>
+              <div class="single-info" style="text-align: center;">
+                <h3 class="single-title"><%= single.title %></h3>
+                <% const singleBpm = single.bpm || single.tempo;
+                if (singleBpm || single.duration) { 
+                  const formatDuration = (seconds) => {
+                    if (!seconds) return null;
+                    const mins = Math.floor(seconds / 60);
+                    const secs = Math.floor(seconds % 60);
+                    return mins + ':' + (secs < 10 ? '0' : '') + secs;
+                  };
+                %>
+                <div class="single-audio-info" style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.5rem;">
+                  <% if (singleBpm) { %><span data-testid="text-bpm-<%= single.id %>"><%= Math.round(singleBpm) %> BPM</span><% } %>
+                  <% if (singleBpm && single.duration) { %> | <% } %>
+                  <% if (single.duration) { %><span data-testid="text-duration-<%= single.id %>"><%= formatDuration(single.duration) %></span><% } %>
+                </div>
+                <% } %>
+                <div class="single-meta" style="justify-content: center; gap: 0.5rem;">
+                  <button class="btn btn-secondary btn-small play-single-inline-btn" 
+                          data-file-path="<%= single.file_path %>" 
+                          data-title="<%= single.title %>"
+                          data-testid="button-play-single-inline-<%= single.id %>">
+                    <i class="fas fa-play"></i> Play
+                  </button>
+                  <button class="btn btn-primary btn-small purchase-btn" 
+                          data-type="song"
+                          data-id="<%= single.id %>"
+                          data-title="<%= single.title %>"
+                          data-price="<%= single.price %>"
+                          data-testid="button-buy-single-<%= single.id %>">
+                    <i class="fas fa-shopping-cart"></i> Buy
+                  </button>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+        
+        <!-- Table/List View -->
+        <div class="singles-table view-table" style="display: none;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>BPM</th>
+                <th>Duration</th>
+                <th>Price</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% singles.forEach(single => { 
+                const bpm = single.bpm || single.tempo;
+                const formatDur = (seconds) => {
+                  if (!seconds) return '-';
+                  const mins = Math.floor(seconds / 60);
+                  const secs = Math.floor(seconds % 60);
+                  return mins + ':' + (secs < 10 ? '0' : '') + secs;
+                };
+              %>
+                <tr data-testid="row-single-<%= single.id %>">
+                  <td><%= single.title %></td>
+                  <td><%= bpm ? Math.round(bpm) : '-' %></td>
+                  <td><%= formatDur(single.duration) %></td>
+                  <td>$<%= parseFloat(single.price).toFixed(2) %></td>
+                  <td style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-secondary btn-small play-single-inline-btn" 
+                            data-file-path="<%= single.file_path %>" 
+                            data-title="<%= single.title %>"
+                            data-testid="button-play-single-list-<%= single.id %>">
+                      <i class="fas fa-play"></i>
+                    </button>
+                    <button class="btn btn-primary btn-small purchase-btn" 
+                            data-type="song"
+                            data-id="<%= single.id %>"
+                            data-title="<%= single.title %>"
+                            data-price="<%= single.price %>"
+                            data-testid="button-buy-single-list-<%= single.id %>">
+                      <i class="fas fa-shopping-cart"></i> Buy
+                    </button>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div class="empty-state" style="text-align: center; padding: 3rem; background: var(--card-background); border-radius: 12px;">
+          <i class="fas fa-record-vinyl" style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 1rem;"></i>
+          <p style="color: var(--text-secondary);">No singles available yet</p>
+        </div>
+      <% } %>
+    </section>
+  </main>
+  
+  <%- include('partials/player') %>
+  <%- include('partials/footer-simple') %>
+  
+  <script src="/js/main.js"></script>
+  <script>
+    // View toggle functionality for Music Catalog - Independent per section
+    document.addEventListener('DOMContentLoaded', function() {
+      // Albums section
+      const albumsToggle = document.querySelector('.view-toggle[data-section="albums"]');
+      const albumGrid = document.querySelector('.album-grid');
+      const albumTable = document.querySelector('.albums-table');
+      
+      // Singles section  
+      const singlesToggle = document.querySelector('.view-toggle[data-section="singles"]');
+      const singlesGrid = document.querySelector('.singles-grid');
+      const singlesTable = document.querySelector('.singles-table');
+      
+      function setupSectionToggle(toggle, grid, table, sectionName) {
+        if (!toggle) return;
+        
+        const btns = toggle.querySelectorAll('.view-btn');
+        btns.forEach(btn => {
+          btn.addEventListener('click', function() {
+            const view = this.dataset.view;
+            
+            // Update active button for this section only
+            btns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Update views
+            if (grid && table) {
+              if (view === 'table') {
+                grid.style.display = 'none';
+                table.style.display = 'block';
+              } else if (view === 'compact') {
+                grid.style.display = 'grid';
+                grid.classList.add('compact-view');
+                table.style.display = 'none';
+              } else {
+                grid.style.display = 'grid';
+                grid.classList.remove('compact-view');
+                table.style.display = 'none';
+              }
+            }
+            
+            // Save preference per section
+            localStorage.setItem('musicCatalog_' + sectionName + 'View', view);
+          });
+        });
+        
+        // Restore saved view preference for this section
+        const savedView = localStorage.getItem('musicCatalog_' + sectionName + 'View');
+        if (savedView) {
+          const btn = toggle.querySelector(`.view-btn[data-view="${savedView}"]`);
+          if (btn) btn.click();
+        }
+      }
+      
+      setupSectionToggle(albumsToggle, albumGrid, albumTable, 'albums');
+      setupSectionToggle(singlesToggle, singlesGrid, singlesTable, 'singles');
+    });
+  </script>
+</body>
+</html>

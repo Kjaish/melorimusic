@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= edit ? 'Edit' : 'Add New' %> Album - MELORI MUSIC</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<%- include('../partials/header', { user: user }) %>
+
+<main class="container" style="padding: 1.5rem 1rem; padding-bottom: 100px;">
+  <h1 style="margin-bottom: 2rem;"><%= edit ? 'Edit' : 'Add New' %> Album</h1>
+  
+  <div class="form-container">
+    <form id="albumForm" action="<%= edit ? '/admin/albums/update/' + album.id : '/admin/albums' %>" method="POST" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="title"><i class="fas fa-heading"></i> Album Title</label>
+        <input type="text" id="title" name="title" class="form-control" required value="<%= edit && album ? album.title : '' %>" data-testid="input-title">
+      </div>
+      
+      <div class="form-group">
+        <label for="description"><i class="fas fa-align-left"></i> Description</label>
+        <textarea id="description" name="description" class="form-control" rows="4" data-testid="input-description"><%= edit && album ? album.description || '' : '' %></textarea>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="price"><i class="fas fa-dollar-sign"></i> Price ($)</label>
+          <input type="number" id="price" name="price" class="form-control" step="0.01" min="0" value="<%= edit && album ? album.price : '8.00' %>" data-testid="input-price">
+        </div>
+        
+        <div class="form-group">
+          <label for="releaseDate"><i class="fas fa-calendar"></i> Release Date</label>
+          <input type="date" id="releaseDate" name="releaseDate" class="form-control" value="<%= edit && album && album.release_date ? album.release_date.split('T')[0] : '' %>" data-testid="input-release-date">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="albumArt"><i class="fas fa-image"></i> Album Art</label>
+        <input type="file" id="albumArt" name="albumArt" class="form-control" accept="image/*" data-testid="input-album-art">
+        <% if (edit && album && album.album_art) { %>
+          <div style="margin-top: 1rem;">
+            <img src="/uploads/album_art/<%= album.album_art %>" alt="Current album art" style="max-width: 150px; border-radius: 8px;" onerror="this.style.display='none'">
+          </div>
+        <% } %>
+        <div id="albumArtPreview" style="margin-top: 1rem;"></div>
+      </div>
+      
+      <div class="form-group" id="songsUploadBox">
+        <label for="songs"><i class="fas fa-music"></i> Upload Songs (up to 50 at once)</label>
+        <input type="file" id="songs" name="songs" class="form-control" accept="audio/mpeg,audio/mp3,audio/wav,audio/x-wav,audio/m4a,audio/x-m4a,audio/flac,audio/ogg,.mp3,.wav,.m4a,.flac,.ogg" multiple data-testid="input-songs">
+        <small style="color: var(--text-secondary);">Select all songs at once - supports MP3, WAV, M4A, FLAC, OGG (max 100MB each)</small>
+        <div id="uploadProgress" style="display: none; margin-top: 1rem; padding: 1rem; background: #FFDAB9; border: 2px solid #FFCBA4; border-radius: 8px; text-align: center;">
+          <i class="fas fa-spinner fa-spin fa-2x" style="color: #FF8C00;"></i>
+          <p id="uploadProgressText" style="margin-top: 0.5rem; margin-bottom: 0; color: #333;">Uploading files... This may take several minutes.</p>
+        </div>
+      </div>
+      
+      <div style="display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap;">
+        <button type="submit" class="btn btn-primary" data-testid="button-save-album">
+          <i class="fas fa-save"></i> <%= edit ? 'Update' : 'Create' %> Album
+        </button>
+        <a href="/admin/albums" class="btn btn-secondary">
+          <i class="fas fa-times"></i> Cancel
+        </a>
+      </div>
+    </form>
+    
+    <% if (edit && typeof songs !== 'undefined' && songs && songs.length > 0) { %>
+      <div style="margin-top: 3rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+          <h2 style="margin: 0;"><i class="fas fa-list"></i> Songs in this Album</h2>
+          <form action="/admin/albums/<%= album.id %>/delete-all-tracks" method="POST" onsubmit="return confirm('Delete ALL <%= songs.length %> tracks from this album? This cannot be undone.')">
+            <button type="submit" class="btn btn-danger" data-testid="button-delete-all-tracks">
+              <i class="fas fa-trash-alt"></i> Delete All Tracks (<%= songs.length %>)
+            </button>
+          </form>
+        </div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Title</th>
+              <th>Price</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% songs.forEach(song => { %>
+              <tr data-testid="row-song-<%= song.id %>">
+                <td><%= song.track_number %></td>
+                <td><%= song.title %></td>
+                <td>$<%= parseFloat(song.price).toFixed(2) %></td>
+                <td>
+                  <form action="/admin/songs/delete/<%= song.id %>" method="POST" style="display: inline;" onsubmit="return confirm('Delete this song?')">
+                    <button type="submit" class="btn btn-small btn-danger">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+</main>
+
+<%- include('../partials/footer-simple') %>
+
+<script src="/js/main.js"></script>
+<script>
+  document.getElementById('albumArt').addEventListener('change', function(e) {
+    const preview = document.getElementById('albumArtPreview');
+    preview.innerHTML = '';
+    if (e.target.files && e.target.files[0]) {
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(e.target.files[0]);
+      img.style.maxWidth = '150px';
+      img.style.borderRadius = '8px';
+      preview.appendChild(img);
+    }
+  });
+  
+  // Show loading indicator on form submit
+  document.getElementById('albumForm').addEventListener('submit', function(e) {
+    const songsInput = document.getElementById('songs');
+    const fileCount = songsInput.files ? songsInput.files.length : 0;
+    
+    // Disable submit button
+    const submitBtn = document.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (fileCount > 0 ? 'Uploading ' + fileCount + ' file(s)...' : 'Saving...');
+    
+    // Show progress in the songs upload box
+    if (fileCount > 0) {
+      const progressDiv = document.getElementById('uploadProgress');
+      const progressText = document.getElementById('uploadProgressText');
+      progressDiv.style.display = 'block';
+      progressText.textContent = 'Uploading ' + fileCount + ' file(s)... This may take several minutes for large files.';
+      
+      // Hide the file input while uploading
+      songsInput.style.display = 'none';
+    }
+  });
+</script>
+</body>
+</html>

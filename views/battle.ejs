@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#000000">
+  <title>Battle Arena - MELORI MUSIC</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --left-color: #ff5500;
+      --right-color: #00CCFF;
+    }
+    
+    body {
+      background: #000;
+      overflow: hidden;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .battle-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100vw;
+      height: 177.78vw;
+      max-height: 100vh;
+      max-width: 56.25vh;
+      background: #000;
+      overflow: hidden;
+    }
+    
+    .battle-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 15px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+    }
+    
+    .back-btn {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
+    
+    .battle-timer {
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    
+    .battle-sides {
+      display: flex;
+      height: 100%;
+      position: relative;
+    }
+    
+    .battle-side {
+      flex: 1;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .side-left {
+      border-right: 2px solid rgba(255,255,255,0.1);
+    }
+    
+    .artist-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: #111;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .video-placeholder {
+      color: #444;
+      font-size: 60px;
+    }
+    
+    .artist-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 15px;
+      background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    }
+    
+    .artist-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: white;
+    }
+    
+    .artist-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 3px solid;
+      object-fit: cover;
+    }
+    
+    .left .artist-avatar { border-color: var(--left-color); }
+    .right .artist-avatar { border-color: var(--right-color); }
+    
+    .artist-info h3 {
+      margin: 0;
+      font-size: 14px;
+    }
+    
+    .artist-info p {
+      margin: 0;
+      font-size: 12px;
+      opacity: 0.8;
+    }
+    
+    /* Tug-of-war Bar */
+    .tug-container {
+      position: absolute;
+      top: 50%;
+      left: 10%;
+      right: 10%;
+      transform: translateY(-50%);
+      z-index: 50;
+    }
+    
+    .tug-bar {
+      height: 6px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 3px;
+      position: relative;
+      overflow: visible;
+    }
+    
+    .tug-fill {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(to right, var(--left-color), var(--right-color));
+      transform: translateX(-50%);
+      transition: all 0.5s ease;
+      border-radius: 3px;
+    }
+    
+    .tug-indicator {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 36px;
+      height: 36px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #000;
+      font-size: 12px;
+      box-shadow: 0 0 15px rgba(255,255,255,0.5);
+      transition: left 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    /* Volume Display */
+    .volume-display {
+      position: absolute;
+      bottom: 120px;
+      left: 10%;
+      right: 10%;
+      display: flex;
+      justify-content: space-between;
+      z-index: 60;
+    }
+    
+    .volume-bar {
+      width: 40%;
+      height: 8px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    .volume-fill {
+      height: 100%;
+      width: 50%;
+      transition: width 0.3s;
+    }
+    
+    .left .volume-fill { background: var(--left-color); }
+    .right .volume-fill { background: var(--right-color); }
+    
+    /* Controls */
+    .battle-controls {
+      position: absolute;
+      bottom: 100px;
+      left: 10%;
+      right: 10%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 70;
+    }
+    
+    .tap-btn {
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: white;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      font-size: 24px;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .tap-btn:active {
+      transform: scale(0.9);
+    }
+    
+    .tap-btn.left-tap {
+      background: linear-gradient(135deg, var(--left-color), #cc4400);
+      border: 2px solid rgba(255,255,255,0.3);
+    }
+    
+    .tap-btn.right-tap {
+      background: linear-gradient(135deg, var(--right-color), #0088aa);
+      border: 2px solid rgba(255,255,255,0.3);
+    }
+    
+    .center-controls {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .control-btn {
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: white;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      font-size: 16px;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+    }
+    
+    /* Power-ups Panel */
+    .powerups-panel {
+      position: absolute;
+      top: 70px;
+      right: 10px;
+      background: rgba(0,0,0,0.7);
+      border-radius: 15px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 80;
+      backdrop-filter: blur(10px);
+    }
+    
+    .powerup-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid var(--left-color);
+      background: rgba(255,85,0,0.2);
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .powerup-btn.active {
+      animation: pulse 1s infinite;
+      background: var(--left-color);
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    
+    /* Battle Results */
+    .battle-results {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.95);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .results-card {
+      background: linear-gradient(135deg, #1a1a1a, var(--left-color));
+      border-radius: 25px;
+      padding: 30px;
+      text-align: center;
+      width: 90%;
+      max-width: 350px;
+      animation: pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    @keyframes pop-in {
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .winner-crown {
+      font-size: 48px;
+      color: gold;
+      margin: 20px 0;
+      animation: crown-bounce 2s infinite;
+    }
+    
+    @keyframes crown-bounce {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(10deg); }
+    }
+    
+    .results-card h2 {
+      color: white;
+      margin: 0 0 10px 0;
+    }
+    
+    .results-card p {
+      color: rgba(255,255,255,0.8);
+      margin: 5px 0;
+    }
+    
+    .results-btn {
+      background: white;
+      color: var(--left-color);
+      border: none;
+      padding: 15px 30px;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: bold;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+    
+    /* Start Battle Overlay */
+    .start-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+    }
+    
+    .start-card {
+      text-align: center;
+      padding: 30px;
+    }
+    
+    .start-card h1 {
+      color: var(--left-color);
+      font-size: 32px;
+      margin-bottom: 20px;
+    }
+    
+    .start-card p {
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 30px;
+    }
+    
+    .start-btn {
+      background: linear-gradient(135deg, var(--left-color), var(--right-color));
+      color: white;
+      border: none;
+      padding: 18px 40px;
+      border-radius: 30px;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      animation: pulse 2s infinite;
+    }
+    
+    .back-link-btn {
+      background: transparent;
+      color: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 12px 24px;
+      border-radius: 25px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 15px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    
+    .back-link-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="battle-container">
+    <!-- Header -->
+    <div class="battle-header">
+      <a href="/" class="back-btn" data-testid="button-back">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <div class="battle-timer">
+        <span id="timer">01:30</span>
+      </div>
+      <button class="back-btn" data-testid="button-share">
+        <i class="fas fa-share"></i>
+      </button>
+    </div>
+    
+    <!-- Battle Sides -->
+    <div class="battle-sides">
+      <!-- Left Artist -->
+      <div class="battle-side side-left" onclick="tapLeft()">
+        <div class="artist-video">
+          <div class="video-placeholder">
+            <i class="fas fa-user"></i>
+          </div>
+        </div>
+        <div class="artist-overlay left">
+          <div class="artist-info">
+            <img src="https://picsum.photos/seed/artist1/100/100" alt="Artist" class="artist-avatar">
+            <div>
+              <h3 id="left-artist">DJ Pulse</h3>
+              <p><i class="fas fa-fire"></i> <span id="left-score">0</span> pts</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Artist -->
+      <div class="battle-side side-right" onclick="tapRight()">
+        <div class="artist-video">
+          <div class="video-placeholder">
+            <i class="fas fa-user"></i>
+          </div>
+        </div>
+        <div class="artist-overlay right">
+          <div class="artist-info">
+            <img src="https://picsum.photos/seed/artist2/100/100" alt="Artist" class="artist-avatar">
+            <div>
+              <h3 id="right-artist">MC Flow</h3>
+              <p><i class="fas fa-fire"></i> <span id="right-score">0</span> pts</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Tug-of-war Bar -->
+    <div class="tug-container">
+      <div class="tug-bar">
+        <div class="tug-fill" id="tug-fill"></div>
+        <div class="tug-indicator" id="tug-indicator">VS</div>
+      </div>
+    </div>
+    
+    <!-- Volume Display -->
+    <div class="volume-display">
+      <div class="volume-bar left">
+        <div class="volume-fill" id="left-volume"></div>
+      </div>
+      <div class="volume-bar right">
+        <div class="volume-fill" id="right-volume"></div>
+      </div>
+    </div>
+    
+    <!-- Controls -->
+    <div class="battle-controls">
+      <button class="tap-btn left-tap" onclick="tapLeft()" data-testid="button-tap-left">
+        <i class="fas fa-hand-pointer"></i>
+      </button>
+      <div class="center-controls">
+        <button class="control-btn" data-testid="button-chat">
+          <i class="fas fa-comment"></i>
+        </button>
+        <button class="control-btn" data-testid="button-gift">
+          <i class="fas fa-gift"></i>
+        </button>
+      </div>
+      <button class="tap-btn right-tap" onclick="tapRight()" data-testid="button-tap-right">
+        <i class="fas fa-hand-pointer"></i>
+      </button>
+    </div>
+    
+    <!-- Power-ups -->
+    <div class="powerups-panel">
+      <button class="powerup-btn" id="powerup-battery" onclick="activatePowerup('battery')" title="2x Points">
+        <i class="fas fa-battery-full"></i>
+      </button>
+      <button class="powerup-btn" id="powerup-thimble" onclick="activatePowerup('thimble')" title="3x Points">
+        <i class="fas fa-bolt"></i>
+      </button>
+    </div>
+    
+    <!-- Start Overlay -->
+    <div class="start-overlay" id="start-overlay">
+      <div class="start-card">
+        <h1><i class="fas fa-music"></i> BATTLE ARENA</h1>
+        <p>Tap to support your favorite artist!</p>
+        <button class="start-btn" onclick="document.getElementById('start-overlay').style.display='none'; startBattle();" data-testid="button-start-battle">
+          START BATTLE
+        </button>
+        <a href="/" class="back-link-btn" data-testid="button-back-home">
+          <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Battle Results -->
+  <div class="battle-results" id="battle-results">
+    <div class="results-card">
+      <div class="winner-crown"><i class="fas fa-crown"></i></div>
+      <h2>WINNER!</h2>
+      <p id="winner-name">DJ Pulse</p>
+      <p><span id="winner-score">0</span> points</p>
+      <button class="results-btn" onclick="closeBattleResults()" data-testid="button-close-results">
+        BACK TO HOME
+      </button>
+    </div>
+  </div>
+  
+  <script src="/js/battle-engine.js"></script>
+  <script>
+    // Mobile touch handling for battle buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      // Start Battle button
+      const startBtn = document.querySelector('[data-testid="button-start-battle"]');
+      if (startBtn) {
+        startBtn.addEventListener('touchend', function(e) {
+          e.preventDefault();
+          document.getElementById('start-overlay').style.display = 'none';
+          if (typeof startBattle === 'function') startBattle();
+        }, { passive: false });
+        
+        startBtn.addEventListener('click', function(e) {
+          document.getElementById('start-overlay').style.display = 'none';
+          if (typeof startBattle === 'function') startBattle();
+        });
+      }
+      
+      // Back to Home button
+      const backHomeBtn = document.querySelector('[data-testid="button-back-home"]');
+      if (backHomeBtn) {
+        backHomeBtn.addEventListener('touchend', function(e) {
+          e.preventDefault();
+          if (typeof goHome === 'function') goHome();
+        }, { passive: false });
+        
+        backHomeBtn.addEventListener('click', function() {
+          if (typeof goHome === 'function') goHome();
+        });
+      }
+      
+      // Back button in header
+      const backBtn = document.querySelector('[data-testid="button-back"]');
+      if (backBtn) {
+        backBtn.addEventListener('touchend', function(e) {
+          e.preventDefault();
+          if (typeof goHome === 'function') goHome();
+        }, { passive: false });
+      }
+    });
+  </script>
+</body>
+</html>

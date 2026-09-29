@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feedback Management - Admin</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .feedback-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.25rem;
+      text-align: center;
+    }
+    .stat-card .number {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--primary);
+    }
+    .stat-card .label {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-top: 0.25rem;
+    }
+    .feedback-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .feedback-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+    .feedback-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .feedback-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .feedback-email {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .feedback-name {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    .feedback-date {
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+    }
+    .feedback-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .feedback-subject {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      background: var(--primary);
+      color: white;
+    }
+    .feedback-rating {
+      color: var(--primary);
+      font-size: 0.9rem;
+    }
+    .feedback-message {
+      color: var(--text-secondary);
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .status-pending {
+      background: rgba(241, 196, 15, 0.2);
+      color: #f1c40f;
+    }
+    .status-reviewed {
+      background: rgba(46, 204, 113, 0.2);
+      color: #2ecc71;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-secondary);
+    }
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/header') %>
+  <%- include('./partials/sidebar') %>
+  
+  <main class="admin-main">
+    <div class="admin-header">
+      <h1 data-testid="text-page-title"><i class="fas fa-comments"></i> Feedback Management</h1>
+    </div>
+    
+    <div class="feedback-stats" data-testid="section-stats">
+      <div class="stat-card">
+        <div class="number" data-testid="stat-total"><%= stats.total || 0 %></div>
+        <div class="label">Total Feedback</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" data-testid="stat-pending"><%= stats.pending || 0 %></div>
+        <div class="label">Pending Review</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" data-testid="stat-reviewed"><%= stats.reviewed || 0 %></div>
+        <div class="label">Reviewed</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" data-testid="stat-rating"><%= stats.avg_rating || '--' %></div>
+        <div class="label">Avg Rating</div>
+      </div>
+    </div>
+    
+    <% if (!feedback || feedback.length === 0) { %>
+      <div class="empty-state" data-testid="text-empty">
+        <i class="fas fa-inbox"></i>
+        <h3>No Feedback Yet</h3>
+        <p>Feedback submissions will appear here.</p>
+      </div>
+    <% } else { %>
+      <div class="feedback-list" data-testid="list-feedback">
+        <% feedback.forEach(item => { %>
+          <div class="feedback-item" data-testid="card-feedback-<%= item.id %>">
+            <div class="feedback-header">
+              <div class="feedback-meta">
+                <span class="feedback-email" data-testid="text-email-<%= item.id %>"><%= item.email %></span>
+                <% if (item.name) { %>
+                  <span class="feedback-name"><%= item.name %></span>
+                <% } %>
+                <span class="feedback-date"><%= new Date(item.created_at).toLocaleString() %></span>
+              </div>
+              <div class="feedback-actions">
+                <span class="feedback-subject"><%= item.subject || 'General' %></span>
+                <% if (item.rating) { %>
+                  <span class="feedback-rating">
+                    <% for (let i = 0; i < item.rating; i++) { %><i class="fas fa-star"></i><% } %>
+                  </span>
+                <% } %>
+                <span class="status-badge status-<%= item.status || 'pending' %>">
+                  <%= item.status || 'pending' %>
+                </span>
+                <% if (item.status !== 'reviewed') { %>
+                  <form action="/admin/feedback/<%= item.id %>/review" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-small btn-secondary" data-testid="button-review-<%= item.id %>">
+                      <i class="fas fa-check"></i> Mark Reviewed
+                    </button>
+                  </form>
+                <% } %>
+                <form action="/admin/feedback/<%= item.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Delete this feedback?');">
+                  <button type="submit" class="btn btn-small btn-danger" data-testid="button-delete-<%= item.id %>">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+            <div class="feedback-message" data-testid="text-message-<%= item.id %>"><%= item.message %></div>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+  </main>
+  
+  <%- include('../partials/footer-simple') %>
+</body>
+</html>

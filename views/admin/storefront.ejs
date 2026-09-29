@@ -1,0 +1,148 @@
+<%- include('../partials/header', { user: user }) %>
+
+<main class="container" style="padding: 1.5rem 1rem; padding-bottom: 100px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap;">
+    <h1 style="margin: 0;">Your Storefronts</h1>
+    <% if (canCreate.allowed) { %>
+      <a href="/admin/storefront/new" class="btn btn-primary" data-testid="button-new-storefront">
+        <i class="fas fa-plus"></i> Create Storefront
+      </a>
+    <% } %>
+  </div>
+  
+  <div style="background: var(--card-background); padding: 1rem 1.5rem; border-radius: 10px; margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;" data-testid="plan-limits">
+    <i class="fas fa-info-circle" style="color: var(--primary-color);"></i>
+    <span>
+      <strong><%= canCreate.current %> / <%= canCreate.limit %></strong> storefronts used
+      <% if (plan) { %>
+        (<%= plan.name.charAt(0).toUpperCase() + plan.name.slice(1) %> Plan)
+      <% } %>
+    </span>
+    <% if (!canCreate.allowed) { %>
+      <a href="/pricing" class="btn btn-small btn-secondary" data-testid="link-upgrade">
+        <i class="fas fa-arrow-up"></i> Upgrade Plan
+      </a>
+    <% } %>
+  </div>
+  
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="alert alert-error" style="background: var(--error-color); color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+      <i class="fas fa-exclamation-circle"></i> <%= error %>
+    </div>
+  <% } %>
+  
+  <% if (typeof success !== 'undefined' && success) { %>
+    <div class="alert alert-success" style="background: var(--success-color); color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+      <i class="fas fa-check-circle"></i> <%= success %>
+    </div>
+  <% } %>
+  
+  <% if (storefronts && storefronts.length > 0) { %>
+    <div style="display: grid; gap: 1.5rem;">
+      <% storefronts.forEach(storefront => { %>
+        <div class="storefront-card" style="background: var(--card-background); border-radius: 12px; overflow: hidden;" data-testid="storefront-card-<%= storefront.id %>">
+          <% if (storefront.banner_url) { %>
+            <div style="height: 120px; background: url('/uploads/<%= storefront.banner_url %>') center/cover no-repeat;"></div>
+          <% } else { %>
+            <div style="height: 120px; background: linear-gradient(135deg, <%= storefront.primary_color || '#FF5500' %>, #1a1a1a);"></div>
+          <% } %>
+          
+          <div style="padding: 1.5rem; display: flex; gap: 1.5rem; flex-wrap: wrap;">
+            <% if (storefront.logo_url) { %>
+              <img src="/uploads/<%= storefront.logo_url %>" alt="<%= storefront.name %>" style="width: 80px; height: 80px; border-radius: 12px; object-fit: cover; margin-top: -50px; border: 4px solid var(--card-background);">
+            <% } else { %>
+              <div style="width: 80px; height: 80px; border-radius: 12px; background: <%= storefront.primary_color || '#FF5500' %>; margin-top: -50px; border: 4px solid var(--card-background); display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-store" style="font-size: 2rem; color: white;"></i>
+              </div>
+            <% } %>
+            
+            <div style="flex: 1; min-width: 200px;">
+              <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                <h3 style="margin: 0;" data-testid="text-storefront-name-<%= storefront.id %>"><%= storefront.name %></h3>
+                <span style="padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background: <%= storefront.is_active ? 'var(--success-color)' : '#666' %>; color: white;" data-testid="status-storefront-<%= storefront.id %>">
+                  <%= storefront.is_active ? 'Active' : 'Inactive' %>
+                </span>
+              </div>
+              
+              <% if (storefront.description) { %>
+                <p style="color: var(--text-secondary); margin: 0.5rem 0; font-size: 0.9rem;"><%= storefront.description.substring(0, 100) %><%= storefront.description.length > 100 ? '...' : '' %></p>
+              <% } %>
+              
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem;">
+                <i class="fas fa-link" style="color: var(--primary-color); font-size: 0.875rem;"></i>
+                <a href="/store/<%= storefront.slug %>" target="_blank" style="color: var(--primary-color); font-size: 0.875rem;" data-testid="link-storefront-<%= storefront.id %>">
+                  /store/<%= storefront.slug %>
+                </a>
+                <button type="button" onclick="copyToClipboard('<%= baseUrl %>/store/<%= storefront.slug %>')" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 0.25rem;" title="Copy URL" data-testid="button-copy-url-<%= storefront.id %>">
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; text-align: center;" data-testid="stats-storefront-<%= storefront.id %>">
+              <div>
+                <div style="font-size: 1.25rem; font-weight: bold; color: var(--primary-color);"><%= storefront.stats?.albums || 0 %></div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary);">Albums</div>
+              </div>
+              <div>
+                <div style="font-size: 1.25rem; font-weight: bold; color: var(--primary-color);"><%= storefront.stats?.songs || 0 %></div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary);">Songs</div>
+              </div>
+              <div>
+                <div style="font-size: 1.25rem; font-weight: bold; color: var(--primary-color);"><%= storefront.stats?.totalSales || 0 %></div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary);">Sales</div>
+              </div>
+              <div>
+                <div style="font-size: 1.25rem; font-weight: bold; color: var(--primary-color);">$<%= (storefront.stats?.totalRevenue || 0).toFixed(2) %></div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary);">Revenue</div>
+              </div>
+            </div>
+          </div>
+          
+          <div style="padding: 0 1.5rem 1.5rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <a href="/admin/storefront/<%= storefront.id %>/edit" class="btn btn-small btn-secondary" data-testid="button-edit-<%= storefront.id %>">
+              <i class="fas fa-edit"></i> Edit
+            </a>
+            <a href="/store/<%= storefront.slug %>" target="_blank" class="btn btn-small btn-secondary" data-testid="button-view-<%= storefront.id %>">
+              <i class="fas fa-external-link-alt"></i> View
+            </a>
+            <form action="/admin/storefront/<%= storefront.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this storefront? This action cannot be undone.')">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" class="btn btn-small btn-danger" data-testid="button-delete-<%= storefront.id %>">
+                <i class="fas fa-trash"></i> Delete
+              </button>
+            </form>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  <% } else { %>
+    <div style="text-align: center; padding: 4rem 2rem; background: var(--card-background); border-radius: 12px;">
+      <i class="fas fa-store" style="font-size: 4rem; color: #666; margin-bottom: 1rem;"></i>
+      <h2>No Storefronts Yet</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Create your first storefront to start selling your music.</p>
+      <% if (canCreate.allowed) { %>
+        <a href="/admin/storefront/new" class="btn btn-primary" data-testid="button-create-first">
+          <i class="fas fa-plus"></i> Create Storefront
+        </a>
+      <% } else { %>
+        <p style="color: var(--error-color);"><%= canCreate.reason %></p>
+        <a href="/pricing" class="btn btn-primary" data-testid="link-upgrade-plan">
+          <i class="fas fa-arrow-up"></i> Upgrade Plan
+        </a>
+      <% } %>
+    </div>
+  <% } %>
+</main>
+
+<%- include('../partials/footer-simple') %>
+
+<script>
+  function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('URL copied to clipboard!');
+    }).catch(err => {
+      console.error('Failed to copy:', err);
+    });
+  }
+</script>
